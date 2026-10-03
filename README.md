@@ -1,1 +1,1 @@
-链接：
+链接：https://afdhj457.github.io/Game-Editor/
