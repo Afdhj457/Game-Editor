@@ -19,7 +19,6 @@
     overflow: hidden; user-select: none;
   }
 
-  /* 开场动画 */
   #intro {
     position: fixed; inset: 0; z-index: 9999;
     background: radial-gradient(circle at 50% 45%, #1a2233 0%, #0a0d13 70%);
@@ -87,7 +86,7 @@
   main { flex: 1; display: flex; min-height: 0; }
   aside { background: var(--panel); display: flex; flex-direction: column; flex-shrink: 0; }
   #hierarchy { width: 195px; border-right: 1px solid var(--border); }
-  #inspector { width: 280px; border-left: 1px solid var(--border); }
+  #inspector { width: 290px; border-left: 1px solid var(--border); }
 
   .panel-title {
     padding: 9px 12px; font-size: 11px; font-weight: 800; letter-spacing: 1px;
@@ -129,6 +128,7 @@
   .empty { color: var(--text-dim); text-align: center; padding: 30px 10px; font-size: 12px; }
   .field { margin-bottom: 9px; }
   .field > label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 4px; font-weight: 700; letter-spacing: .3px; }
+  .field > label .val { color: var(--accent); font-weight: 800; }
   .field input[type=number], .field input[type=text], .field select {
     width: 100%; background: #0d1016; color: var(--text);
     border: 1px solid var(--border); border-radius: 5px;
@@ -136,6 +136,7 @@
   }
   .field select { cursor: pointer; }
   .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
   .vec-group { display: flex; gap: 5px; }
   .vec-item { flex: 1; display: flex; align-items: center; background: #0d1016; border: 1px solid var(--border); border-radius: 5px; padding-left: 6px; min-width: 0; }
   .vec-item span { font-size: 10px; color: var(--text-dim); font-weight: 800; flex-shrink: 0; }
@@ -159,19 +160,73 @@
   .group-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
   .group-title .btns { display: flex; gap: 4px; }
 
+  /* 手感快速调节面板 */
+  .tune-panel {
+    background: linear-gradient(135deg, #131c2b, #0f1520);
+    border: 1px solid #2a3a55; border-radius: 8px;
+    padding: 10px; margin-bottom: 6px;
+  }
+  .tune-panel .tp-title {
+    font-size: 10px; letter-spacing: 1.5px; font-weight: 800;
+    color: #4a9eff; margin-bottom: 8px; display: flex; justify-content: space-between;
+  }
+  .tune-panel .tp-title span:last-child { color: var(--text-dim); font-weight: 600; letter-spacing: 0; }
+  .tune-slider { margin-bottom: 8px; }
+  .tune-slider .ts-head {
+    display: flex; justify-content: space-between;
+    font-size: 11px; margin-bottom: 3px; color: var(--text);
+  }
+  .tune-slider .ts-head b { color: var(--accent); font-family: monospace; }
+  .tune-presets { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .tune-presets button {
+    padding: 3px 8px; font-size: 10.5px; border-radius: 12px;
+    background: #1b2536; border-color: #2a3a55;
+  }
+  .tune-presets button:hover { background: #26364d; border-color: #3a4f70; }
+
   /* 骨骼卡片 */
   .bone-card {
-    background: #10141b; border: 1px solid var(--border); border-radius: 6px;
-    padding: 7px 8px; margin-bottom: 6px;
+    background: #10141b; border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px; margin-bottom: 7px;
   }
   .bone-card .bhead {
-    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 5px; margin-bottom: 7px;
   }
-  .bone-card .bhead input { flex: 1; background: transparent; border: none; color: var(--text); font-weight: 700; font-size: 12px; outline: none; padding: 2px 0; }
-  .bone-card .bhead .bdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .bone-card .brow { display: flex; gap: 4px; margin-bottom: 4px; }
+  .bone-card .bhead .bdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+  .bone-card .bhead input.bname {
+    flex: 1; background: transparent; border: none; color: var(--text);
+    font-weight: 700; font-size: 12px; outline: none; padding: 2px 4px;
+    border-radius: 3px; min-width: 0;
+  }
+  .bone-card .bhead input.bname:focus { background: #0d1016; }
+  .bone-card .bhead select {
+    background: #0d1016; color: var(--text-dim); border: 1px solid var(--border);
+    border-radius: 4px; font-size: 10px; padding: 2px 4px; cursor: pointer;
+    max-width: 82px;
+  }
+  .bone-card .bhead select:focus { outline: none; border-color: var(--accent); }
 
-  /* 血条 */
+  .bone-sec {
+    border-top: 1px dashed #1e2735;
+    padding-top: 6px; margin-top: 6px;
+  }
+  .bone-sec:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .bone-sec .bs-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 1px;
+    color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .slider-row { margin-bottom: 6px; }
+  .slider-row .sr-head {
+    display: flex; justify-content: space-between;
+    font-size: 10.5px; margin-bottom: 2px;
+  }
+  .slider-row .sr-head span:first-child { color: var(--text-dim); font-weight: 700; }
+  .slider-row .sr-head span:last-child { color: var(--accent); font-family: monospace; font-weight: 800; }
+  .slider-row input[type=range] {
+    width: 100%; height: 4px; accent-color: var(--accent); cursor: pointer;
+    background: #1a2029; border-radius: 2px; outline: none;
+  }
+
   .hp-bar { height: 8px; background: #1a1f28; border-radius: 4px; overflow: hidden; margin-top: 4px; }
   .hp-bar i { display: block; height: 100%; transition: width .2s; }
 
@@ -227,7 +282,7 @@
 <div id="intro">
   <div class="logo">🎮</div>
   <div class="title">GAME EDITOR</div>
-  <div class="sub">CREATURE · BONES · PARTICLES</div>
+  <div class="sub">CREATURE · BONES · TUNING</div>
   <div class="bar"><i></i></div>
 </div>
 
@@ -312,6 +367,10 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const FACTION_COLOR = { friend: '#2ee6a8', enemy: '#ff5b5b', neutral: '#9aa7b8' };
 const FACTION_NAME = { friend: '友方', enemy: '敌方', neutral: '中立' };
+const fmt = (v, digits = 2) => {
+  const n = Number(v) || 0;
+  return n.toFixed(digits).replace(/\.?0+$/, '') || '0';
+};
 
 function toast(msg, ms = 1700) {
   const t = $('#toast');
@@ -424,14 +483,9 @@ const Particles = {
       const a = Math.random() * Math.PI * 2;
       const sp = (cfg.speed ?? 180) * (0.5 + Math.random());
       this.list.push({
-        x, y, z: 0,
-        vx: Math.cos(a) * sp,
-        vy: Math.sin(a) * sp - (cfg.speed ?? 180) * 0.3,
-        vz: 0,
-        life: (cfg.life ?? 0.8) * (0.6 + Math.random() * 0.7),
-        maxLife: cfg.life ?? 0.8,
-        color: cfg.color || '#ffd93d',
-        size: (cfg.size ?? 4) * (0.5 + Math.random()),
+        x, y, z: 0, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (cfg.speed ?? 180) * 0.3, vz: 0,
+        life: (cfg.life ?? 0.8) * (0.6 + Math.random() * 0.7), maxLife: cfg.life ?? 0.8,
+        color: cfg.color || '#ffd93d', size: (cfg.size ?? 4) * (0.5 + Math.random()),
         gravity: cfg.gravity ?? 400
       });
     }
@@ -447,12 +501,9 @@ const Particles = {
         vx: Math.cos(a) * Math.cos(b) * sp,
         vy: Math.sin(b) * sp + sp * 0.4,
         vz: Math.sin(a) * Math.cos(b) * sp,
-        life: (cfg.life ?? 1.0) * (0.6 + Math.random() * 0.7),
-        maxLife: cfg.life ?? 1.0,
-        color: cfg.color || '#ffd93d',
-        size: (cfg.size ?? 0.15) * (0.5 + Math.random()),
-        gravity: cfg.gravity ?? 8,
-        is3d: true
+        life: (cfg.life ?? 1.0) * (0.6 + Math.random() * 0.7), maxLife: cfg.life ?? 1.0,
+        color: cfg.color || '#ffd93d', size: (cfg.size ?? 0.15) * (0.5 + Math.random()),
+        gravity: cfg.gravity ?? 8, is3d: true
       });
     }
   },
@@ -463,12 +514,8 @@ const Particles = {
       p.life -= dt;
       if (p.life <= 0) { this.list.splice(i, 1); continue; }
       p.vy -= p.gravity * dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.z += p.vz * dt;
-      if (is3d) {
-        if (p.y < 0.05) { p.y = 0.05; p.vy *= -0.4; p.vx *= 0.8; p.vz *= 0.8; }
-      }
+      p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+      if (is3d && p.y < 0.05) { p.y = 0.05; p.vy *= -0.4; p.vx *= 0.8; p.vz *= 0.8; }
     }
   },
   draw2d(ctx) {
@@ -600,7 +647,6 @@ function drawGrid() {
   ctx.moveTo(0, y0); ctx.lineTo(0, y1);
   ctx.stroke();
 }
-
 function drawCreatureBones2d(o) {
   const bones = o.bones && o.bones.length ? o.bones : defaultBones();
   const drawBone = (i) => {
@@ -613,7 +659,6 @@ function drawCreatureBones2d(o) {
     const w = b.sx || 20, h = b.sy || 20;
     rrect(-w / 2, -h / 2, w, h, Math.min(w, h) * 0.22);
     ctx.fill();
-    // 描边让骨骼更清晰
     ctx.strokeStyle = 'rgba(0,0,0,.25)';
     ctx.lineWidth = 1;
     ctx.stroke();
@@ -626,7 +671,6 @@ function drawCreatureBones2d(o) {
     if (bones[i].parent === -1 || bones[i].parent == null) drawBone(i);
   }
 }
-
 function drawHPBar2d(o, x, y) {
   const w = 46, h = 5;
   const ratio = clamp((o.hp ?? 1) / (o.maxHp || 1), 0, 1);
@@ -638,14 +682,12 @@ function drawHPBar2d(o, x, y) {
   ctx.lineWidth = 0.8;
   ctx.strokeRect(x - w / 2, y, w, h);
 }
-
 function drawObj2d(o) {
   if (o._dead) return;
   ctx.save();
   ctx.translate(o.x, o.y);
   ctx.rotate(d2r(o.rot || 0));
   ctx.fillStyle = o.color || '#4a9eff';
-
   if (o.type === 'creature') {
     ctx.rotate(0);
     drawCreatureBones2d(o);
@@ -671,7 +713,6 @@ function drawObj2d(o) {
   }
   ctx.restore();
 
-  // 生物 UI（不随旋转）
   if (o.type === 'creature') {
     const top = o.y - (o.h || 80) / 2 - 4;
     drawHPBar2d(o, o.x, top - 10);
@@ -693,7 +734,6 @@ function drawObj2d(o) {
     ctx.restore();
   }
 
-  // 绑定指示
   if (o.bindParent) {
     const p = state.scenes['2d'].find(x => x.id === o.bindParent);
     if (p) {
@@ -709,7 +749,6 @@ function drawObj2d(o) {
     }
   }
 }
-
 function drawSelection2d(o) {
   const z = state.cam2d.zoom;
   ctx.save();
@@ -729,7 +768,6 @@ function drawSelection2d(o) {
   }
   ctx.restore();
 }
-
 function draw2d() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = '#14171e';
@@ -738,16 +776,12 @@ function draw2d() {
   ctx.translate(CW / 2, CH / 2);
   ctx.scale(state.cam2d.zoom, state.cam2d.zoom);
   ctx.translate(-state.cam2d.x, -state.cam2d.y);
-
   drawGrid();
-
   for (const o of state.scenes['2d']) {
     if (o.visible === false) continue;
     drawObj2d(o);
   }
-
   Particles.draw2d(ctx);
-
   const sel = getSelected();
   if (sel && !state.playing) drawSelection2d(sel);
   ctx.restore();
@@ -930,7 +964,6 @@ async function init3d() {
   const raycaster = new THREE.Raycaster();
   const pickables = [];
 
-  // 3D 粒子系统
   const ptGeo = new THREE.BufferGeometry();
   const MAXP = 2000;
   ptGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
@@ -981,7 +1014,6 @@ function makeMat(T, color) {
   return new T.MeshStandardMaterial({ color: new T.Color(color), roughness: 0.45, metalness: 0.12 });
 }
 
-/* 3D 骨骼构建 */
 function buildCreature3d(o) {
   const T = three3d.THREE;
   const bones = o.bones && o.bones.length ? o.bones : defaultBones();
@@ -1090,7 +1122,6 @@ function syncScene3d() {
   const list = state.scenes['3d'];
   const ids = new Set(list.map(o => o.id));
 
-  // 删除
   for (const [id, o3] of [...byId]) {
     if (!ids.has(id)) {
       scene.remove(o3);
@@ -1102,10 +1133,8 @@ function syncScene3d() {
     }
   }
 
-  // 新增 / 更新
   for (const o of list) {
     let o3 = byId.get(o.id);
-    // 骨骼变化时重建生物
     if (o3 && o.type === 'creature' && o3.userData.boneVer !== (o._boneVersion || 0)) {
       scene.remove(o3);
       disposeObj3d(o3);
@@ -1124,7 +1153,6 @@ function syncScene3d() {
     }
     applyTransform3d(o3, o);
 
-    // 颜色同步
     if (o.type === 'creature') {
       const bones = o.bones && o.bones.length ? o.bones : [];
       let idx = 0;
@@ -1143,14 +1171,8 @@ function syncScene3d() {
     }
     if (o3.userData.bulb) o3.userData.bulb.material.color.set(o.color);
     o3.userData.data = o;
-
-    // 生物血条（用精灵？太复杂，这里用缩放表示血量）
-    if (o.type === 'creature' && o3.userData.hpSprite) {
-      // 省略
-    }
   }
 
-  // 路径可视化
   while (pathGroup.children.length) {
     const c = pathGroup.children.pop();
     c.geometry?.dispose();
@@ -1184,7 +1206,6 @@ function select3d(id) {
   else tc.detach();
 }
 
-/* 更新 3D 粒子显示 */
 function update3dParticles() {
   if (!three3d || !particles3dPoints) return;
   const { ptGeo, MAXP } = three3d;
@@ -1272,13 +1293,11 @@ function stop() {
   updateStatus();
 }
 
-/* 造成伤害 */
 function damage(obj, amount) {
   if (obj._dead) return;
   const def = obj.defense || 0;
   const dmg = Math.max(1, amount - def * 0.5);
   obj.hp = Math.max(0, (obj.hp ?? 10) - dmg);
-  // 受击闪白
   obj._hitFlash = 0.15;
   if (obj.sound?.enabled) sfx(obj.sound.type, obj.sound.volume);
   if (obj.hp <= 0) destroyObj(obj);
@@ -1288,25 +1307,19 @@ function destroyObj(o) {
   if (o._dead) return;
   o._dead = true;
   o.visible = false;
-  // 粒子爆发
   if (o.particles?.enabled) {
     const cfg = o.particles;
-    if (state.mode === '2d') {
-      Particles.spawn2d(o.x, o.y, cfg);
-    } else {
-      Particles.spawn3d(o.pos, cfg);
-    }
+    if (state.mode === '2d') Particles.spawn2d(o.x, o.y, cfg);
+    else Particles.spawn3d(o.pos, cfg);
     if (cfg.sound) sfx('explosion', 0.35);
   }
 }
 
-/* ---------- 2D 物理 ---------- */
 function step2d(dt) {
   const arr = state.scenes['2d'];
   const FLOOR = 240, WALL = 460;
   const snd = [];
 
-  // 重力 + 速度
   for (const o of arr) {
     if (o.visible === false || o._dead) continue;
     if (o.bindParent) continue;
@@ -1315,7 +1328,6 @@ function step2d(dt) {
     o.y += (o.vy || 0) * dt;
   }
 
-  // 边界
   for (const o of arr) {
     if (o.visible === false || o._dead || o.bindParent) continue;
     const hw = Math.abs(o.w) / 2, hh = Math.abs(o.h) / 2;
@@ -1332,7 +1344,6 @@ function step2d(dt) {
     if (hit && o.sound?.enabled) snd.push([o.sound, 'b' + o.id]);
   }
 
-  // 对象间碰撞
   for (let i = 0; i < arr.length; i++) {
     for (let j = i + 1; j < arr.length; j++) {
       const a = arr[i], b = arr[j];
@@ -1345,7 +1356,6 @@ function step2d(dt) {
       const oy = (ahh + bhh) - Math.abs(dy);
       if (ox <= 0 || oy <= 0) continue;
 
-      // 生物伤害判定：敌对双方碰撞
       if (a.type === 'creature' && b.type === 'creature' && a.faction !== b.faction) {
         if (!a._cd || performance.now() - a._cd > 500) { damage(a, b.attack || 5); a._cd = performance.now(); }
         if (!b._cd || performance.now() - b._cd > 500) { damage(b, a.attack || 5); b._cd = performance.now(); }
@@ -1372,7 +1382,6 @@ function step2d(dt) {
     }
   }
 
-  // 绑定跟随
   for (const o of arr) {
     if (!o.bindParent || o._dead) continue;
     const p = arr.find(x => x.id === o.bindParent);
@@ -1387,7 +1396,6 @@ function step2d(dt) {
 
   for (const [s, k] of snd) sfxT(k, s.type, s.volume);
 
-  // 相机
   const p = arr.find(o => o.isPlayer && !o._dead);
   if (p) {
     const k = 1 - Math.exp(-5 * dt);
@@ -1396,7 +1404,6 @@ function step2d(dt) {
   }
 }
 
-/* ---------- 3D 物理 ---------- */
 function bbox3(o) {
   const s = o.scale, p = o.pos;
   return {
@@ -1413,7 +1420,6 @@ function step3d(dt) {
     if (o.visible === false || o._dead) continue;
     if (o.bindParent) continue;
 
-    // 路径
     if (o.path?.enabled && o.path.points?.length >= 2) {
       o.path._t = (o.path._t || 0) + dt * (o.path.speed || 1);
       const pts = o.path.points, n = pts.length;
@@ -1451,7 +1457,6 @@ function step3d(dt) {
     }
   }
 
-  // 碰撞
   for (let i = 0; i < arr.length; i++) {
     for (let j = i + 1; j < arr.length; j++) {
       const a = arr[i], b = arr[j];
@@ -1464,7 +1469,6 @@ function step3d(dt) {
       const oz = Math.min(A.max[2], B.max[2]) - Math.max(A.min[2], B.min[2]);
       if (ox <= 0 || oy <= 0 || oz <= 0) continue;
 
-      // 生物伤害
       if (a.type === 'creature' && b.type === 'creature' && a.faction !== b.faction) {
         if (!a._cd || performance.now() - a._cd > 500) { damage(a, b.attack || 5); a._cd = performance.now(); }
         if (!b._cd || performance.now() - b._cd > 500) { damage(b, a.attack || 5); b._cd = performance.now(); }
@@ -1491,7 +1495,6 @@ function step3d(dt) {
     }
   }
 
-  // 绑定跟随
   for (const o of arr) {
     if (!o.bindParent || o._dead) continue;
     const p = arr.find(x => x.id === o.bindParent);
@@ -1507,7 +1510,6 @@ function step3d(dt) {
 
   syncScene3d();
 
-  // 相机
   const p = arr.find(o => o.isPlayer && !o._dead);
   if (p && three3d) {
     const T = three3d.THREE;
@@ -1690,14 +1692,15 @@ function rowSelect(label, value, options, onInput) {
   return d;
 }
 function rowSlider(label, value, min, max, step, onInput, suffix = '') {
-  const d = el('div', 'field', `<label>${esc(label)} <span style="color:var(--accent);font-weight:700">${value}${suffix}</span></label>`);
+  const d = el('div', 'field');
+  const digits = step < 1 ? 2 : 0;
+  d.innerHTML = `<label>${esc(label)} <span class="val">${fmt(value, digits)}${suffix}</span></label>`;
   const i = document.createElement('input');
   i.type = 'range'; i.min = min; i.max = max; i.step = step; i.value = value;
-  i.style.cssText = 'width:100%;accent-color:var(--accent);cursor:pointer;';
-  const valSpan = d.querySelector('label span');
+  const valSpan = d.querySelector('.val');
   i.addEventListener('input', () => {
     const v = parseFloat(i.value);
-    valSpan.textContent = v + suffix;
+    valSpan.textContent = fmt(v, digits) + suffix;
     onInput(v);
   });
   d.appendChild(i);
@@ -1725,7 +1728,133 @@ function selectSfxRow(label, value, onInput) {
   ], onInput);
 }
 
-/* ---------- 骨骼编辑器 ---------- */
+/* =========================================================
+   ★ 玩家手感快速调节面板
+   ========================================================= */
+function renderPlayerTuning(o) {
+  const wrap = el('div', 'tune-panel');
+  const is2d = state.mode === '2d';
+
+  const title = el('div', 'tp-title');
+  title.innerHTML = `<span>🎮 手感快速调节</span><span>${o.name}</span>`;
+  wrap.appendChild(title);
+
+  // 重力
+  const gMax = is2d ? 3000 : 60;
+  const gStep = is2d ? 25 : 0.5;
+  const gRow = el('div', 'tune-slider');
+  gRow.innerHTML = `
+    <div class="ts-head"><span>重力 Gravity</span><b id="tuneGrav">${fmt(o.gravity || 0, 1)}</b></div>
+  `;
+  const gInp = document.createElement('input');
+  gInp.type = 'range'; gInp.min = 0; gInp.max = gMax; gInp.step = gStep;
+  gInp.value = clamp(o.gravity || 0, 0, gMax);
+  gInp.style.cssText = 'width:100%;accent-color:#4a9eff;cursor:pointer;';
+  const gVal = gRow.querySelector('#tuneGrav');
+  gInp.addEventListener('input', () => {
+    const v = parseFloat(gInp.value);
+    o.gravity = v;
+    gVal.textContent = fmt(v, 1);
+  });
+  gRow.appendChild(gInp);
+  wrap.appendChild(gRow);
+
+  // 弹性
+  const bRow = el('div', 'tune-slider');
+  bRow.innerHTML = `
+    <div class="ts-head"><span>弹性 Bounce</span><b id="tuneBnc">${fmt(o.bounce ?? 0.6, 2)}</b></div>
+  `;
+  const bInp = document.createElement('input');
+  bInp.type = 'range'; bInp.min = 0; bInp.max = 1.5; bInp.step = 0.02;
+  bInp.value = clamp(o.bounce ?? 0.6, 0, 1.5);
+  bInp.style.cssText = 'width:100%;accent-color:#4a9eff;cursor:pointer;';
+  const bVal = bRow.querySelector('#tuneBnc');
+  bInp.addEventListener('input', () => {
+    const v = parseFloat(bInp.value);
+    o.bounce = v;
+    bVal.textContent = fmt(v, 2);
+  });
+  bRow.appendChild(bInp);
+  wrap.appendChild(bRow);
+
+  // 重力预设
+  const gPre = el('div', 'tune-presets');
+  const gLabel = el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重力预设</span>');
+  gPre.appendChild(gLabel);
+  const gravPresets = is2d
+    ? [['地球', 1000], ['月球', 166], ['木星', 2400], ['太空', 0]]
+    : [['地球', 20], ['月球', 3.3], ['木星', 50], ['太空', 0]];
+  for (const [name, val] of gravPresets) {
+    const b = el('button', null, name);
+    b.title = '重力 ' + val;
+    b.addEventListener('click', () => {
+      o.gravity = val;
+      gInp.value = Math.min(val, gMax);
+      gVal.textContent = fmt(val, 1);
+    });
+    gPre.appendChild(b);
+  }
+  wrap.appendChild(gPre);
+
+  // 弹性预设
+  const bPre = el('div', 'tune-presets');
+  const bLabel = el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">弹性预设</span>');
+  bPre.appendChild(bLabel);
+  for (const [name, val] of [['无弹', 0], ['低弹', 0.25], ['标准', 0.55], ['高弹', 0.8], ['超弹', 1.1]]) {
+    const b = el('button', null, name);
+    b.title = '弹性 ' + val;
+    b.addEventListener('click', () => {
+      o.bounce = val;
+      bInp.value = val;
+      bVal.textContent = fmt(val, 2);
+    });
+    bPre.appendChild(b);
+  }
+  wrap.appendChild(bPre);
+
+  // 重置按钮
+  const resetRow = el('div', 'tune-presets', '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重置</span>');
+  const resetBtn = el('button', null, '🔄 恢复默认');
+  resetBtn.addEventListener('click', () => {
+    o.gravity = is2d ? 1000 : 20;
+    o.bounce = is2d ? 0.55 : 0.72;
+    gInp.value = Math.min(o.gravity, gMax);
+    gVal.textContent = fmt(o.gravity, 1);
+    bInp.value = o.bounce;
+    bVal.textContent = fmt(o.bounce, 2);
+  });
+  resetRow.appendChild(resetBtn);
+  wrap.appendChild(resetRow);
+
+  return wrap;
+}
+
+/* =========================================================
+   ★ 骨骼编辑器（滑块微调版）
+   ========================================================= */
+function boneSlider(label, value, min, max, step, onChange, suffix = '') {
+  const row = el('div', 'slider-row');
+  const digits = step < 1 ? 2 : 0;
+  row.innerHTML = `
+    <div class="sr-head">
+      <span>${esc(label)}</span>
+      <span>${fmt(value, digits)}${suffix}</span>
+    </div>
+  `;
+  const inp = document.createElement('input');
+  inp.type = 'range'; inp.min = min; inp.max = max; inp.step = step; inp.value = value;
+  const valSpan = row.querySelector('.sr-head span:last-child');
+  let rafId = null;
+  inp.addEventListener('input', () => {
+    const v = parseFloat(inp.value);
+    valSpan.textContent = fmt(v, digits) + suffix;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => onChange(v));
+  });
+  row.appendChild(inp);
+  return row;
+}
+
 function renderBonesEditor(o) {
   const container = el('div', 'bone-block');
   if (!o.bones || !o.bones.length) {
@@ -1733,21 +1862,28 @@ function renderBonesEditor(o) {
     o._boneVersion = (o._boneVersion || 0) + 1;
   }
   const bones = o.bones;
+  const is2d = state.mode === '2d';
 
-  // 每个骨骼卡片
+  // 骨骼总览小标签
+  const tips = el('div');
+  tips.style.cssText = 'font-size:10px;color:#7c8698;margin-bottom:8px;line-height:1.5;';
+  tips.innerHTML = `共 ${bones.length} 个骨骼 · 拖动下方滑块微调偏移与旋转`;
+  container.appendChild(tips);
+
   for (let i = 0; i < bones.length; i++) {
     const b = bones[i];
     const card = el('div', 'bone-card');
 
-    // 头部：颜色 + 名称 + 删除
+    // 头部：颜色 + 名称 + 父级 + 删除
     const head = el('div', 'bhead');
     const dot = el('span', 'bdot');
     dot.style.background = b.color || o.color;
+    dot.style.color = b.color || o.color;
     const nameInput = document.createElement('input');
+    nameInput.className = 'bname';
     nameInput.value = b.name || ('骨骼' + i);
     nameInput.addEventListener('input', () => { b.name = nameInput.value; });
     const parentSel = document.createElement('select');
-    parentSel.style.cssText = 'background:#0d1016;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px 4px;';
     const op0 = document.createElement('option');
     op0.value = '-1'; op0.textContent = '根';
     parentSel.appendChild(op0);
@@ -1760,105 +1896,130 @@ function renderBonesEditor(o) {
     }
     parentSel.addEventListener('change', () => {
       const v = parseInt(parentSel.value);
-      // 检查循环
-      let p = v;
-      while (p >= 0) {
+      let p = v, depth = 0;
+      while (p >= 0 && depth < 50) {
         if (p === i) { toast('不能形成循环父级'); parentSel.value = b.parent ?? -1; return; }
         p = bones[p].parent;
+        depth++;
       }
       b.parent = v;
       o._boneVersion = (o._boneVersion || 0) + 1;
-      if (state.mode === '3d') syncScene3d();
+      if (!is2d) syncScene3d();
     });
     const delBtn = el('button', 'tiny danger', '×');
     delBtn.addEventListener('click', () => {
       bones.splice(i, 1);
-      // 修复 parent 索引
       for (const bb of bones) {
         if (bb.parent === i) bb.parent = -1;
         else if (bb.parent > i) bb.parent--;
       }
       o._boneVersion = (o._boneVersion || 0) + 1;
-      if (state.mode === '3d') syncScene3d();
+      if (!is2d) syncScene3d();
       renderInspector();
     });
     head.append(dot, nameInput, parentSel, delBtn);
     card.appendChild(head);
 
     // 颜色
-    const cRow = el('div', 'brow');
+    const colorSec = el('div', 'bone-sec');
+    const colorRow = el('div');
+    colorRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
     const colorInp = document.createElement('input');
     colorInp.type = 'color'; colorInp.value = b.color || o.color;
-    colorInp.style.cssText = 'width:30px;height:22px;padding:0;border:1px solid var(--border);border-radius:4px;background:#0d1016;cursor:pointer;';
+    colorInp.style.cssText = 'width:34px;height:24px;padding:0;border:1px solid var(--border);border-radius:4px;background:#0d1016;cursor:pointer;';
     colorInp.addEventListener('input', () => {
       b.color = colorInp.value;
       dot.style.background = b.color;
+      dot.style.color = b.color;
       o._boneVersion = (o._boneVersion || 0) + 1;
-      if (state.mode === '3d') syncScene3d();
+      if (!is2d) syncScene3d();
     });
-    cRow.appendChild(colorInp);
-    card.appendChild(cRow);
+    const colorLbl = el('span', null, '<span style="font-size:10px;color:#7c8698;font-weight:800">骨骼颜色</span>');
+    colorRow.append(colorInp, colorLbl);
+    colorSec.appendChild(colorRow);
+    card.appendChild(colorSec);
 
-    // 位置
-    const posRow = el('div', 'brow');
-    for (const [key, lbl, min, max] of [['ox', 'X', -200, 200], ['oy', 'Y', -200, 200], ['oz', 'Z', -200, 200]]) {
-      if (state.mode === '2d' && key === 'oz') continue;
-      const w = el('div', 'vec-item');
-      const s = el('span', null, lbl);
-      const inp = document.createElement('input');
-      inp.type = 'number'; inp.step = 2; inp.value = b[key] || 0;
-      inp.addEventListener('input', () => {
-        b[key] = parseFloat(inp.value) || 0;
+    // 偏移
+    const posSec = el('div', 'bone-sec');
+    posSec.appendChild(el('div', 'bs-label', '偏移 Offset'));
+    posSec.appendChild(boneSlider('X 横向', b.ox || 0, -160, 160, 1, v => {
+      b.ox = v;
+      o._boneVersion = (o._boneVersion || 0) + 1;
+      if (!is2d) syncScene3d();
+    }));
+    posSec.appendChild(boneSlider('Y 纵向', b.oy || 0, -160, 160, 1, v => {
+      b.oy = v;
+      o._boneVersion = (o._boneVersion || 0) + 1;
+      if (!is2d) syncScene3d();
+    }));
+    if (!is2d) {
+      posSec.appendChild(boneSlider('Z 深度', b.oz || 0, -160, 160, 1, v => {
+        b.oz = v;
         o._boneVersion = (o._boneVersion || 0) + 1;
-        if (state.mode === '3d') syncScene3d();
-      });
-      w.append(s, inp);
-      posRow.appendChild(w);
+        syncScene3d();
+      }));
     }
-    card.appendChild(posRow);
+    card.appendChild(posSec);
 
     // 旋转
-    const rotRow = el('div', 'brow');
-    const rotAxes = state.mode === '2d' ? [['rz', 'R']] : [['rx', 'RX'], ['ry', 'RY'], ['rz', 'RZ']];
-    for (const [key, lbl] of rotAxes) {
-      const w = el('div', 'vec-item');
-      const s = el('span', null, lbl);
-      const inp = document.createElement('input');
-      inp.type = 'number'; inp.step = 5; inp.value = b[key] || 0;
-      inp.addEventListener('input', () => {
-        b[key] = parseFloat(inp.value) || 0;
+    const rotSec = el('div', 'bone-sec');
+    rotSec.appendChild(el('div', 'bs-label', '旋转 Rotation'));
+    if (is2d) {
+      rotSec.appendChild(boneSlider('角度', b.rz || 0, -180, 180, 1, v => {
+        b.rz = v;
         o._boneVersion = (o._boneVersion || 0) + 1;
-        if (state.mode === '3d') syncScene3d();
-      });
-      w.append(s, inp);
-      rotRow.appendChild(w);
+      }, '°'));
+    } else {
+      rotSec.appendChild(boneSlider('RX', b.rx || 0, -180, 180, 1, v => {
+        b.rx = v;
+        o._boneVersion = (o._boneVersion || 0) + 1;
+        syncScene3d();
+      }, '°'));
+      rotSec.appendChild(boneSlider('RY', b.ry || 0, -180, 180, 1, v => {
+        b.ry = v;
+        o._boneVersion = (o._boneVersion || 0) + 1;
+        syncScene3d();
+      }, '°'));
+      rotSec.appendChild(boneSlider('RZ', b.rz || 0, -180, 180, 1, v => {
+        b.rz = v;
+        o._boneVersion = (o._boneVersion || 0) + 1;
+        syncScene3d();
+      }, '°'));
     }
-    card.appendChild(rotRow);
+    card.appendChild(rotSec);
 
     // 尺寸
-    const sizeRow = el('div', 'brow');
-    const sizeAxes = state.mode === '2d' ? [['sx', 'W'], ['sy', 'H']] : [['sx', 'SX'], ['sy', 'SY'], ['sz', 'SZ']];
-    for (const [key, lbl] of sizeAxes) {
-      const w = el('div', 'vec-item');
-      const s = el('span', null, lbl);
-      const inp = document.createElement('input');
-      inp.type = 'number'; inp.step = 2; inp.value = b[key] || 10;
-      inp.addEventListener('input', () => {
-        b[key] = Math.max(1, parseFloat(inp.value) || 1);
+    const szSec = el('div', 'bone-sec');
+    szSec.appendChild(el('div', 'bs-label', '尺寸 Size'));
+    const szMax = is2d ? 120 : 1.5;
+    const szStep = is2d ? 1 : 0.02;
+    szSec.appendChild(boneSlider('宽', b.sx || (is2d ? 20 : 0.3), 1, szMax, szStep, v => {
+      b.sx = v;
+      o._boneVersion = (o._boneVersion || 0) + 1;
+      if (!is2d) syncScene3d();
+    }));
+    szSec.appendChild(boneSlider('高', b.sy || (is2d ? 20 : 0.3), 1, szMax, szStep, v => {
+      b.sy = v;
+      o._boneVersion = (o._boneVersion || 0) + 1;
+      if (!is2d) syncScene3d();
+    }));
+    if (!is2d) {
+      szSec.appendChild(boneSlider('深', b.sz || (b.sx || 0.3), 0.05, szMax, szStep, v => {
+        b.sz = v;
         o._boneVersion = (o._boneVersion || 0) + 1;
-        if (state.mode === '3d') syncScene3d();
-      });
-      w.append(s, inp);
-      sizeRow.appendChild(w);
+        syncScene3d();
+      }));
     }
-    card.appendChild(sizeRow);
+    card.appendChild(szSec);
 
     container.appendChild(card);
   }
   return container;
 }
 
-/* ---------- 粒子编辑器 ---------- */
+/* =========================================================
+   粒子编辑器
+   ========================================================= */
 function renderParticlesEditor(o) {
   const wrap = el('div');
   o.particles = o.particles || { enabled: true, count: 20, color: o.color, speed: state.mode === '2d' ? 200 : 4, life: 0.8, size: state.mode === '2d' ? 4 : 0.15, gravity: state.mode === '2d' ? 400 : 8, sound: true };
@@ -1889,7 +2050,9 @@ function renderParticlesEditor(o) {
   return wrap;
 }
 
-/* ---------- 主渲染 ---------- */
+/* =========================================================
+   主渲染
+   ========================================================= */
 function renderInspector() {
   const p = els.props;
   p.innerHTML = '';
@@ -1900,6 +2063,11 @@ function renderInspector() {
   }
 
   p.appendChild(rowText('名称', o.name, v => { o.name = v; renderHierarchy(); }));
+
+  /* ★ 玩家快速调节面板 —— 放在最前面 */
+  if (o.isPlayer) {
+    p.appendChild(renderPlayerTuning(o));
+  }
 
   if (state.mode === '2d') {
     /* ========== 2D ========== */
@@ -1925,7 +2093,6 @@ function renderInspector() {
     p.appendChild(rowColor('颜色', o.color, v => { o.color = v; }));
     p.appendChild(rowCheck('可见', o.visible !== false, v => { o.visible = v; renderHierarchy(); }));
 
-    /* ---- 生物系统（2D）---- */
     if (o.type === 'creature') {
       o.maxHp = o.maxHp ?? 30;
       o.hp = o.hp ?? o.maxHp;
@@ -1952,7 +2119,6 @@ function renderInspector() {
       dmgRow.appendChild(dBtn);
       p.appendChild(dmgRow);
 
-      /* ---- 骨骼绑定 ---- */
       p.appendChild(groupTitle('骨骼绑定', [{
         text: '+ 加骨骼', onClick: () => {
           o.bones = o.bones || defaultBones();
@@ -1975,32 +2141,27 @@ function renderInspector() {
       }]));
       p.appendChild(renderBonesEditor(o));
 
-      /* ---- 粒子破坏 ---- */
       p.appendChild(groupTitle('粒子破坏与效果'));
       p.appendChild(renderParticlesEditor(o));
-
     } else {
-      /* ---- 非生物粒子 ---- */
       p.appendChild(groupTitle('粒子效果（被摧毁时）'));
       p.appendChild(renderParticlesEditor(o));
     }
 
-    /* ---- 角色 ---- */
     p.appendChild(groupTitle('角色'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
       o.isPlayer = v;
       renderHierarchy();
+      renderInspector();
     }));
 
-    /* ---- 绑定 ---- */
     p.appendChild(groupTitle('对象绑定'));
     const otherObjs = objs().filter(x => x.id !== o.id);
     const bindOpts = [['', '不绑定']].concat(otherObjs.map(x => [x.id, x.name]));
     p.appendChild(rowSelect('绑定到父级', o.bindParent || '', bindOpts, v => {
       if (!v) { o.bindParent = null; }
       else {
-        // 检查循环
         let p2 = v, depth = 0;
         while (p2 && depth < 50) {
           if (p2 === o.id) { toast('不能绑定到自己或循环'); return; }
@@ -2011,27 +2172,16 @@ function renderInspector() {
         o.bindParent = v;
         const parent = objs().find(x => x.id === v);
         if (parent) {
-          if (state.mode === '2d') {
-            o.bindOffset = [o.x - parent.x, o.y - parent.y];
-            o._bindRot = (o.rot || 0) - (parent.rot || 0);
-          } else {
-            o.bindOffset = [o.pos[0] - parent.pos[0], o.pos[1] - parent.pos[1], o.pos[2] - parent.pos[2]];
-            o._bindRotX = (o.rot[0] || 0) - (parent.rot[0] || 0);
-            o._bindRotY = (o.rot[1] || 0) - (parent.rot[1] || 0);
-            o._bindRotZ = (o.rot[2] || 0) - (parent.rot[2] || 0);
-          }
+          o.bindOffset = [o.x - parent.x, o.y - parent.y];
+          o._bindRot = (o.rot || 0) - (parent.rot || 0);
         }
       }
       renderInspector();
     }));
     if (o.bindParent) {
-      p.appendChild(rowVec('绑定偏移', state.mode === '2d' ? [
+      p.appendChild(rowVec('绑定偏移', [
         { name: 'X', value: o.bindOffset?.[0] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0]; o.bindOffset[0] = v; } },
         { name: 'Y', value: o.bindOffset?.[1] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0]; o.bindOffset[1] = v; } }
-      ] : [
-        { name: 'X', value: o.bindOffset?.[0] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0, 0]; o.bindOffset[0] = v; } },
-        { name: 'Y', value: o.bindOffset?.[1] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0, 0]; o.bindOffset[1] = v; } },
-        { name: 'Z', value: o.bindOffset?.[2] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0, 0]; o.bindOffset[2] = v; } }
       ]));
       const copyBindBtn = el('button', 'mini', '⧉ 复制并绑定到同一父级');
       copyBindBtn.style.width = '100%';
@@ -2040,9 +2190,8 @@ function renderInspector() {
         c.id = uid();
         c.name = o.name + ' 副本';
         c.bindParent = o.bindParent;
-        c.bindOffset = (o.bindOffset || [0, 0, 0]).slice();
-        if (state.mode === '2d') c.bindOffset[0] += 20;
-        else c.bindOffset[0] += 1.2;
+        c.bindOffset = (o.bindOffset || [0, 0]).slice();
+        c.bindOffset[0] += 20;
         objs().push(c);
         if (state.mode === '3d') syncScene3d();
         select(c.id);
@@ -2051,7 +2200,6 @@ function renderInspector() {
       p.appendChild(copyBindBtn);
     }
 
-    /* ---- 物理 ---- */
     p.appendChild(groupTitle('物理'));
     p.appendChild(rowCheck('参与碰撞', o.collide !== false, v => { o.collide = v; }));
     p.appendChild(rowNum('重力 (px/s²)', o.gravity || 0, v => { o.gravity = v; }, 50));
@@ -2061,7 +2209,6 @@ function renderInspector() {
       { name: 'VY', value: o.vy || 0, onInput: v => { o.vy = v; } }
     ]));
 
-    /* ---- 音效 ---- */
     p.appendChild(groupTitle('音效'));
     o.sound = o.sound || { enabled: false, type: 'hit', volume: 0.3 };
     p.appendChild(rowCheck('碰撞时播放', o.sound.enabled, v => { o.sound.enabled = v; }));
@@ -2093,7 +2240,6 @@ function renderInspector() {
     if (o.type === 'camera3d') p.appendChild(rowNum('视野 FOV', o.fov ?? 50, v => { o.fov = clamp(v, 10, 140); }, 1));
     p.appendChild(rowCheck('可见', o.visible !== false, v => { o.visible = v; syncScene3d(); renderHierarchy(); }));
 
-    /* ---- 生物（3D）---- */
     if (o.type === 'creature') {
       o.maxHp = o.maxHp ?? 40;
       o.hp = o.hp ?? o.maxHp;
@@ -2120,7 +2266,6 @@ function renderInspector() {
       dmgRow.appendChild(dBtn);
       p.appendChild(dmgRow);
 
-      /* ---- 3D 骨骼绑定 ---- */
       p.appendChild(groupTitle('骨骼绑定', [{
         text: '+ 加骨骼', onClick: () => {
           o.bones = o.bones || defaultBones();
@@ -2143,7 +2288,6 @@ function renderInspector() {
       }]));
       p.appendChild(renderBonesEditor(o));
 
-      /* ---- 粒子破坏 ---- */
       p.appendChild(groupTitle('粒子破坏与效果'));
       p.appendChild(renderParticlesEditor(o));
     } else {
@@ -2151,15 +2295,14 @@ function renderInspector() {
       p.appendChild(renderParticlesEditor(o));
     }
 
-    /* ---- 角色 ---- */
     p.appendChild(groupTitle('角色'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
       o.isPlayer = v;
       renderHierarchy();
+      renderInspector();
     }));
 
-    /* ---- 绑定 ---- */
     p.appendChild(groupTitle('对象绑定'));
     const otherObjs = objs().filter(x => x.id !== o.id);
     const bindOpts = [['', '不绑定']].concat(otherObjs.map(x => [x.id, x.name]));
@@ -2207,14 +2350,12 @@ function renderInspector() {
       p.appendChild(copyBindBtn);
     }
 
-    /* ---- 物理动画 ---- */
     p.appendChild(groupTitle('物理 / 动画'));
     p.appendChild(rowCheck('参与碰撞', o.collide !== false, v => { o.collide = v; }));
     p.appendChild(rowNum('自转速度', o.spin || 0, v => { o.spin = v; }, 0.1));
     p.appendChild(rowNum('重力', o.gravity || 0, v => { o.gravity = v; }, 1));
     p.appendChild(rowNum('弹性', o.bounce ?? 0.6, v => { o.bounce = clamp(v, 0, 1.5); }, 0.05));
 
-    /* ---- 轨迹 ---- */
     o.path = o.path || { enabled: false, points: [], speed: 1, mode: 'loop' };
     p.appendChild(groupTitle('轨迹', [{
       text: '+ 添加点', onClick: () => {
@@ -2256,7 +2397,6 @@ function renderInspector() {
       }
     }
 
-    /* ---- 相机 ---- */
     if (o.type !== 'camera3d') {
       p.appendChild(groupTitle('相机'));
       const btn = el('button', 'mini', '🎥 从当前视角创建相机');
@@ -2281,7 +2421,6 @@ function renderInspector() {
       p.appendChild(btn);
     }
 
-    /* ---- 音效 ---- */
     p.appendChild(groupTitle('音效'));
     o.sound = o.sound || { enabled: false, type: 'hit', volume: 0.3 };
     p.appendChild(rowCheck('碰撞时播放', o.sound.enabled, v => { o.sound.enabled = v; }));
@@ -2414,7 +2553,6 @@ function deleteSelected() {
   if (!o) return;
   const arr = objs();
   arr.splice(arr.indexOf(o), 1);
-  // 解除其他对象的绑定
   for (const x of arr) if (x.bindParent === o.id) x.bindParent = null;
   state.selectedId = null;
   if (state.mode === '3d') { syncScene3d(); select3d(null); }
@@ -2459,14 +2597,9 @@ function loadSingleObject(file) {
     try {
       const data = JSON.parse(r.result);
       let obj;
-      if (data.type === 'single-object' && data.object) {
-        obj = data.object;
-      } else if (data.id && data.type) {
-        obj = data;
-      } else {
-        throw new Error('不是有效的对象文件');
-      }
-      // 重新生成 ID
+      if (data.type === 'single-object' && data.object) obj = data.object;
+      else if (data.id && data.type) obj = data;
+      else throw new Error('不是有效的对象文件');
       obj.id = uid();
       if (!obj.bindParent) obj.bindParent = null;
       if (obj.sound === undefined) obj.sound = { enabled: false, type: 'hit', volume: 0.3 };
@@ -2560,7 +2693,6 @@ function loadJSON(text) {
       state.projectName = data.projectName;
       $('#projName').value = data.projectName;
     }
-    // 兼容旧版
     for (const k of ['2d', '3d']) {
       for (const o of state.scenes[k]) {
         if (o.collide === undefined) o.collide = true;
@@ -2636,7 +2768,6 @@ function buildGameRuntime() {
     const th = {};
     function sfxT(k, t, v) { const n = performance.now(); if (th[k] && n - th[k] < 90) return; th[k] = n; sfx(t, v); }
 
-    /* 粒子 */
     const PL = [];
     function spawnP2(x, y, c) {
       const n = c.count || 18;
@@ -2669,7 +2800,6 @@ function buildGameRuntime() {
       }
     }
 
-    /* 伤害 */
     function damage(o, amt) {
       if (o._dead) return;
       const dmg = Math.max(1, amt - (o.defense || 0) * .5);
@@ -2687,7 +2817,6 @@ function buildGameRuntime() {
       }
     }
 
-    /* ---- 2D ---- */
     const c2d = document.getElementById('c2d');
     const ctx = c2d ? c2d.getContext('2d') : null;
     let CW = 0, CH = 0, DPR = 1;
@@ -2757,7 +2886,6 @@ function buildGameRuntime() {
           ctx.fillText(o.text || '文本', 0, 0);
         }
         ctx.restore();
-        // 生物 UI
         if (o.type === 'creature') {
           const top = o.y - (o.h || 80) / 2 - 14;
           const w = 46, h = 5;
@@ -2773,7 +2901,6 @@ function buildGameRuntime() {
           ctx.restore();
         }
       }
-      // 粒子
       for (const p of PL) {
         if (p.is3d) continue;
         const a = Math.max(0, p.life / p.maxLife);
@@ -2845,7 +2972,6 @@ function buildGameRuntime() {
       if (p) { const k = 1 - Math.exp(-5 * dt); cam.x += (p.x - cam.x) * k; cam.y += (p.y - cam.y) * k; }
     }
 
-    /* ---- 3D ---- */
     let T3, renderer, scene, camera, meshes = new Map(), ptGeo, ptPts, MAXP = 2000;
 
     function bbox(o) {
@@ -3072,7 +3198,6 @@ function buildGameRuntime() {
       }
     }
 
-    /* ---- 主循环 ---- */
     function loop(t) {
       if (!running) return;
       requestAnimationFrame(loop);
