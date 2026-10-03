@@ -723,7 +723,6 @@ const AssetLib = {
   },
   add(name, mode, srcObj) {
     const clean = JSON.parse(JSON.stringify(srcObj));
-    // 清理运行时字段
     delete clean.id;
     delete clean._dead;
     delete clean._jumping;
@@ -735,7 +734,6 @@ const AssetLib = {
     delete clean._bindRotZ;
     delete clean._hitFlash;
     if (clean.logic) for (const r of clean.logic) { delete r._fired; delete r._timer; }
-    // 解绑父级（避免引用丢失）
     clean.bindParent = null;
 
     const a = {
@@ -748,7 +746,6 @@ const AssetLib = {
       createdAt: Date.now()
     };
     this.list.unshift(a);
-    // 最多保留 200 个
     if (this.list.length > 200) this.list.length = 200;
     return this.persist();
   },
@@ -767,7 +764,6 @@ const TYPE_ICONS = {
   pointLight: '💡', directionalLight: '☀', camera3d: '🎥', creature: '🧬', text3d: 'T'
 };
 
-/* 绘制资源缩略图 */
 function drawAssetThumb(canvas, asset) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   const w = canvas.clientWidth || 130;
@@ -778,7 +774,6 @@ function drawAssetThumb(canvas, asset) {
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.clearRect(0, 0, w, h);
 
-  // 背景渐变
   const g = c.createLinearGradient(0, 0, 0, h);
   g.addColorStop(0, '#161e2b');
   g.addColorStop(1, '#0a0d13');
@@ -789,7 +784,6 @@ function drawAssetThumb(canvas, asset) {
   const cx = w / 2, cy = h / 2;
 
   if (asset.mode === '2d') {
-    // 2D 预览
     c.save();
     c.translate(cx, cy);
     const fitScale = Math.min(w / 120, h / 80, 1);
@@ -820,7 +814,6 @@ function drawAssetThumb(canvas, asset) {
       c.textBaseline = 'middle';
       c.fillText((o.text || 'T').slice(0, 3), 0, 0);
     } else if (o.type === 'creature') {
-      // 简化骨骼预览
       c.shadowBlur = 8;
       c.fillStyle = o.color || '#ff5b5b';
       c.fillRect(-7, -10, 14, 20);
@@ -834,9 +827,7 @@ function drawAssetThumb(canvas, asset) {
     }
     c.restore();
   } else {
-    // 3D 预览
     c.save();
-    // 画一个 3D 透视的小方块背景
     c.strokeStyle = 'rgba(74,158,255,.15)';
     c.lineWidth = 1;
     for (let i = 1; i <= 3; i++) {
@@ -847,7 +838,6 @@ function drawAssetThumb(canvas, asset) {
     }
     c.restore();
 
-    // 图标 + 颜色
     c.save();
     c.translate(cx, cy);
     c.font = '30px -apple-system, sans-serif';
@@ -860,7 +850,6 @@ function drawAssetThumb(canvas, asset) {
     c.fillText(ico, 0, 0);
     c.restore();
 
-    // 类型角标
     c.fillStyle = 'rgba(255,217,61,.85)';
     c.font = 'bold 8px sans-serif';
     c.textAlign = 'right';
@@ -929,13 +918,11 @@ function renderAssetList() {
     });
     card.appendChild(delBtn);
 
-    // 点击卡片 → 添加资源到场景
     card.addEventListener('click', () => {
       useAsset(a);
     });
 
     list.appendChild(card);
-    // 渲染缩略图（需要先加入 DOM 获取尺寸）
     requestAnimationFrame(() => drawAssetThumb(canvas, a));
   }
 }
@@ -947,7 +934,6 @@ function useAsset(asset) {
   }
   const obj = JSON.parse(JSON.stringify(asset.data));
   obj.id = uid();
-  // 避免与场景内已有对象 id 冲突
   if (!obj.bindParent) obj.bindParent = null;
   if (!obj.logic) obj.logic = [];
   if (!obj.sound) obj.sound = { enabled: false, type: 'hit', volume: 0.3 };
@@ -957,7 +943,6 @@ function useAsset(asset) {
   if (obj.type === 'creature' && !obj.bones) obj.bones = defaultBones();
   if (obj.type === 'text3d') obj._textVersion = 0;
 
-  // 稍微偏移避免完全重叠
   if (state.mode === '2d') {
     obj.x = (obj.x || 0) + 30;
     obj.y = (obj.y || 0) + 30;
@@ -3499,7 +3484,6 @@ function updateAddBtnsScrollArrows() {
   wrap.classList.toggle('hasRight', canRight);
 }
 
-/* 关键：用 pointer 事件 + 移动阈值来区分点击和滑动 */
 function makeAddBtn(label, onClick) {
   const b = document.createElement('button');
   b.textContent = label;
@@ -3519,7 +3503,6 @@ function makeAddBtn(label, onClick) {
   };
   b.addEventListener('pointerup', fire);
   b.addEventListener('pointercancel', () => { pid = null; moved = true; });
-  // 阻止浏览器默认点击（避免滑动后误触发）
   b.addEventListener('click', e => e.preventDefault());
   return b;
 }
@@ -3536,7 +3519,6 @@ function renderAddButtons() {
   requestAnimationFrame(updateAddBtnsScrollArrows);
 }
 
-// 监听放置栏滚动
 (function () {
   const el = $('#addBtns');
   if (!el) return;
@@ -3547,7 +3529,6 @@ function renderAddButtons() {
       e.preventDefault();
     }
   }, { passive: false });
-  // 阻止多指缩放
   el.addEventListener('touchstart', e => {
     if (e.touches.length > 1) e.preventDefault();
   }, { passive: false });
@@ -4596,7 +4577,6 @@ $('#objFileInput').addEventListener('change', e => {
 
 /* ---------- 资源库事件 ---------- */
 $('#assetBtn').addEventListener('click', () => {
-  // 选中对象的名称作为默认
   const o = getSelected();
   $('#assetName').value = o ? o.name : '';
   $('#assetModal').classList.add('on');
