@@ -20,6 +20,10 @@
     touch-action: pan-x pan-y;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  button, a, input, select, textarea {
+    touch-action: manipulation;
   }
 
   #intro {
@@ -86,16 +90,22 @@
   .seg button { border: none; background: transparent; padding: 5px 14px; border-radius: 5px; font-weight: 700; }
   .seg button.active { background: var(--accent); color: #fff; }
 
-  /* ============ 放置栏：水平滚动，禁止缩放 ============ */
+  /* ============ 放置栏：移动端可左右滑动 ============ */
+  #addBtnsWrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
   #addBtns {
     display: flex;
     gap: 5px;
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow-x: scroll;
     overflow-y: hidden;
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 100%;
+    width: 100%;
     padding: 2px 4px 4px 4px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
@@ -103,8 +113,6 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     scroll-snap-type: x proximity;
-    mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
   }
   #addBtns::-webkit-scrollbar { display: none; height: 0; width: 0; }
   #addBtns button {
@@ -112,21 +120,14 @@
     font-size: 11.5px;
     scroll-snap-align: start;
     flex: 0 0 auto;
-  }
-  /* 滚动提示箭头 */
-  #addBtnsWrap {
-    position: relative;
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: center;
+    touch-action: pan-x;
   }
   #addBtnsWrap::before,
   #addBtnsWrap::after {
     content: '';
     position: absolute;
     top: 0; bottom: 0;
-    width: 14px;
+    width: 16px;
     pointer-events: none;
     z-index: 2;
     opacity: 0;
@@ -352,23 +353,87 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .modal-mask {
-    position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 99998;
+    position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 99998;
     display: none; align-items: center; justify-content: center;
+    padding: 16px;
   }
   .modal-mask.on { display: flex; }
   .modal {
     background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; width: 520px; max-width: 92vw;
+    padding: 16px; width: 640px; max-width: 100%; max-height: 88vh;
     box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    display: flex; flex-direction: column;
   }
-  .modal h3 { font-size: 14px; margin-bottom: 10px; }
+  .modal h3 { font-size: 14px; margin-bottom: 10px; flex-shrink: 0; }
   .modal textarea {
     width: 100%; height: 170px; background: #0d1016; color: var(--text);
     border: 1px solid var(--border); border-radius: 6px; padding: 10px;
     font-family: monospace; font-size: 11px; resize: vertical; outline: none;
   }
   .modal textarea:focus { border-color: var(--accent); }
-  .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-shrink: 0; }
+
+  /* ============ 资源库 ============ */
+  .asset-toolbar {
+    display: flex; gap: 8px; margin-bottom: 12px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .asset-toolbar input {
+    flex: 1; background: #0d1016; color: var(--text);
+    border: 1px solid var(--border); border-radius: 5px;
+    padding: 6px 10px; font-size: 12px; font-family: inherit; outline: none;
+  }
+  .asset-toolbar input:focus { border-color: var(--accent); }
+
+  .asset-list {
+    flex: 1; overflow-y: auto; min-height: 120px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; padding: 2px;
+  }
+  .asset-empty {
+    grid-column: 1 / -1;
+    text-align: center; padding: 40px 20px;
+    color: var(--text-dim); font-size: 12px; line-height: 1.8;
+  }
+  .asset-empty .ico { font-size: 40px; display: block; margin-bottom: 8px; opacity: .6; }
+
+  .asset-card {
+    background: #10141b; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; cursor: pointer; transition: all .15s; position: relative;
+    overflow: hidden;
+  }
+  .asset-card:hover { border-color: var(--accent); transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(74,158,255,.15); }
+  .asset-card:active { transform: translateY(0); }
+  .asset-card .ac-canvas {
+    width: 100%; height: 64px; border-radius: 5px;
+    background: #0a0d13; display: block; margin-bottom: 7px;
+  }
+  .asset-card .ac-name {
+    font-size: 12px; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .asset-card .ac-meta {
+    font-size: 10px; color: var(--text-dim); margin-top: 2px;
+    display: flex; gap: 6px; align-items: center;
+  }
+  .asset-card .ac-mode {
+    background: #1b2536; color: #4a9eff; padding: 1px 5px;
+    border-radius: 3px; font-weight: 800; font-size: 9px;
+  }
+  .asset-card .ac-mode.m3d { color: #ffd93d; }
+  .asset-card .ac-del {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,91,91,.9); color: #fff; border: none;
+    font-size: 13px; line-height: 1; cursor: pointer; padding: 0;
+    opacity: 0; transition: opacity .15s;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 3;
+  }
+  .asset-card:hover .ac-del { opacity: 1; }
+  .asset-card .ac-del:hover { background: #ff5b5b; }
 
   /* 响应式 */
   @media (max-width: 900px) {
@@ -380,6 +445,8 @@
     #hierarchy { display: none; }
     .brand { font-size: 12px; }
     #projName { width: 90px; font-size: 11px; }
+    #toolbar { gap: 4px; padding: 6px 8px; }
+    #toolbar button { padding: 6px 8px; font-size: 11px; }
   }
 </style>
 <script type="importmap">
@@ -396,7 +463,7 @@
 <div id="intro">
   <div class="logo">🎮</div>
   <div class="title">GAME EDITOR</div>
-  <div class="sub">SCROLL · TEXT · PLAY</div>
+  <div class="sub">ASSETS · SCROLL · PLAY</div>
   <div class="bar"><i></i></div>
 </div>
 
@@ -416,6 +483,7 @@
     <button id="playBtn" class="green">▶ 播放</button>
     <button id="stopBtn">■ 停止</button>
     <div class="spacer"></div>
+    <button id="assetBtn" title="打开资源库">🎒 资源库</button>
     <button id="dupBtn" title="Ctrl+D">⧉ 复制</button>
     <button id="delBtn" class="danger" title="Delete">🗑 删除</button>
     <div class="sep"></div>
@@ -462,6 +530,7 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Base64 导入模态框 -->
 <div class="modal-mask" id="b64Modal">
   <div class="modal">
     <h3>导入 Base64 场景</h3>
@@ -473,30 +542,32 @@
   </div>
 </div>
 
+<!-- 资源库模态框 -->
+<div class="modal-mask" id="assetModal">
+  <div class="modal">
+    <h3>🎒 资源库</h3>
+    <div class="asset-toolbar">
+      <input type="text" id="assetName" placeholder="资源名称（保存当前选中对象）" maxlength="40">
+      <button id="assetSaveCurrent" class="primary">💾 保存当前选中</button>
+    </div>
+    <div class="asset-list" id="assetList"></div>
+    <div class="row">
+      <button id="assetClearAll" class="danger">清空资源库</button>
+      <button id="assetClose" class="primary">关闭</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 /* =========================================================
-   禁止缩放（浏览器/移动端）
+   禁止缩放（移动端 + 桌面）
    ========================================================= */
-// 1. 阻止双指手势缩放（Safari）
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(evt => {
   document.addEventListener(evt, e => e.preventDefault(), { passive: false });
 });
-// 2. 阻止多指触摸缩放
-document.addEventListener('touchmove', e => {
-  if (e.touches.length > 1) e.preventDefault();
-}, { passive: false });
-// 3. 阻止双击缩放
-let _lastTouchEnd = 0;
-document.addEventListener('touchend', e => {
-  const now = Date.now();
-  if (now - _lastTouchEnd < 300) e.preventDefault();
-  _lastTouchEnd = now;
-}, { passive: false });
-// 4. 阻止 Ctrl/⌘ + 滚轮缩放（不影响画布本身的普通滚轮缩放）
 window.addEventListener('wheel', e => {
   if (e.ctrlKey || e.metaKey) e.preventDefault();
 }, { passive: false, capture: true });
-// 5. 阻止键盘缩放快捷键
 window.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && ['+', '=', '-', '_', '0'].includes(e.key)) {
     e.preventDefault();
@@ -627,6 +698,293 @@ const state = {
 };
 const objs = () => state.scenes[state.mode];
 const getSelected = () => objs().find(o => o.id === state.selectedId) || null;
+
+/* =========================================================
+   资源库
+   ========================================================= */
+const AssetLib = {
+  KEY: 'game_editor_assets_v1',
+  list: [],
+  load() {
+    try {
+      const s = localStorage.getItem(this.KEY);
+      this.list = s ? JSON.parse(s) : [];
+      if (!Array.isArray(this.list)) this.list = [];
+    } catch (e) { this.list = []; }
+  },
+  persist() {
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify(this.list));
+      return true;
+    } catch (e) {
+      toast('保存失败：' + (e.message || '存储空间不足'));
+      return false;
+    }
+  },
+  add(name, mode, srcObj) {
+    const clean = JSON.parse(JSON.stringify(srcObj));
+    // 清理运行时字段
+    delete clean.id;
+    delete clean._dead;
+    delete clean._jumping;
+    delete clean._boneVersion;
+    delete clean._textVersion;
+    delete clean._bindRot;
+    delete clean._bindRotX;
+    delete clean._bindRotY;
+    delete clean._bindRotZ;
+    delete clean._hitFlash;
+    if (clean.logic) for (const r of clean.logic) { delete r._fired; delete r._timer; }
+    // 解绑父级（避免引用丢失）
+    clean.bindParent = null;
+
+    const a = {
+      id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      name: (name || srcObj.name || '资源').slice(0, 40),
+      mode: mode,
+      type: srcObj.type,
+      color: srcObj.color || '#4a9eff',
+      data: clean,
+      createdAt: Date.now()
+    };
+    this.list.unshift(a);
+    // 最多保留 200 个
+    if (this.list.length > 200) this.list.length = 200;
+    return this.persist();
+  },
+  remove(id) {
+    const i = this.list.findIndex(x => x.id === id);
+    if (i >= 0) { this.list.splice(i, 1); return this.persist(); }
+    return false;
+  },
+  get(id) { return this.list.find(x => x.id === id); },
+  clear() { this.list = []; return this.persist(); }
+};
+
+const TYPE_ICONS = {
+  rect: '▭', circle: '●', triangle: '▲', text: 'T',
+  box: '⬛', sphere: '⚪', cylinder: '⬤', cone: '▲', torus: '◎', plane: '▬',
+  pointLight: '💡', directionalLight: '☀', camera3d: '🎥', creature: '🧬', text3d: 'T'
+};
+
+/* 绘制资源缩略图 */
+function drawAssetThumb(canvas, asset) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth || 130;
+  const h = canvas.clientHeight || 64;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const c = canvas.getContext('2d');
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, h);
+
+  // 背景渐变
+  const g = c.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#161e2b');
+  g.addColorStop(1, '#0a0d13');
+  c.fillStyle = g;
+  c.fillRect(0, 0, w, h);
+
+  const o = asset.data;
+  const cx = w / 2, cy = h / 2;
+
+  if (asset.mode === '2d') {
+    // 2D 预览
+    c.save();
+    c.translate(cx, cy);
+    const fitScale = Math.min(w / 120, h / 80, 1);
+    c.scale(fitScale, fitScale);
+    c.fillStyle = o.color || '#4a9eff';
+    c.shadowColor = o.color || '#4a9eff';
+    c.shadowBlur = 12;
+    if (o.type === 'rect') {
+      const rw = Math.min(80, Math.max(20, Math.abs(o.w || 60)));
+      const rh = Math.min(50, Math.max(16, Math.abs(o.h || 60)));
+      roundRect(c, -rw / 2, -rh / 2, rw, rh, o.radius || 4);
+      c.fill();
+    } else if (o.type === 'circle') {
+      c.beginPath();
+      c.ellipse(0, 0, 26, 22, 0, 0, Math.PI * 2);
+      c.fill();
+    } else if (o.type === 'triangle') {
+      c.beginPath();
+      c.moveTo(0, -22);
+      c.lineTo(24, 20);
+      c.lineTo(-24, 20);
+      c.closePath();
+      c.fill();
+    } else if (o.type === 'text') {
+      c.shadowBlur = 10;
+      c.font = 'bold 20px -apple-system, "PingFang SC", sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText((o.text || 'T').slice(0, 3), 0, 0);
+    } else if (o.type === 'creature') {
+      // 简化骨骼预览
+      c.shadowBlur = 8;
+      c.fillStyle = o.color || '#ff5b5b';
+      c.fillRect(-7, -10, 14, 20);
+      c.fillStyle = '#ffd93d';
+      c.beginPath();
+      c.arc(0, -16, 5, 0, Math.PI * 2);
+      c.fill();
+      c.fillStyle = o.color || '#ff5b5b';
+      c.fillRect(-13, -6, 4, 12);
+      c.fillRect(9, -6, 4, 12);
+    }
+    c.restore();
+  } else {
+    // 3D 预览
+    c.save();
+    // 画一个 3D 透视的小方块背景
+    c.strokeStyle = 'rgba(74,158,255,.15)';
+    c.lineWidth = 1;
+    for (let i = 1; i <= 3; i++) {
+      c.beginPath();
+      c.moveTo(0, h * i / 4);
+      c.lineTo(w, h * i / 4);
+      c.stroke();
+    }
+    c.restore();
+
+    // 图标 + 颜色
+    c.save();
+    c.translate(cx, cy);
+    c.font = '30px -apple-system, sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.shadowColor = asset.color || '#4a9eff';
+    c.shadowBlur = 16;
+    c.fillStyle = asset.color || '#4a9eff';
+    const ico = TYPE_ICONS[asset.type] || '▪';
+    c.fillText(ico, 0, 0);
+    c.restore();
+
+    // 类型角标
+    c.fillStyle = 'rgba(255,217,61,.85)';
+    c.font = 'bold 8px sans-serif';
+    c.textAlign = 'right';
+    c.fillText('3D', w - 6, 12);
+  }
+}
+
+function roundRect(c, x, y, w, h, r) {
+  r = Math.max(0, Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2));
+  c.beginPath();
+  if (c.roundRect) { c.roundRect(x, y, w, h, r); return; }
+  c.moveTo(x + r, y);
+  c.lineTo(x + w - r, y);
+  c.quadraticCurveTo(x + w, y, x + w, y + r);
+  c.lineTo(x + w, y + h - r);
+  c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  c.lineTo(x + r, y + h);
+  c.quadraticCurveTo(x, y + h, x, y + h - r);
+  c.lineTo(x, y + r);
+  c.quadraticCurveTo(x, y, x + r, y);
+  c.closePath();
+}
+
+function renderAssetList() {
+  const list = $('#assetList');
+  list.innerHTML = '';
+
+  if (!AssetLib.list.length) {
+    list.innerHTML = `<div class="asset-empty">
+      <span class="ico">📦</span>
+      资源库是空的<br>
+      <span style="font-size:11px">选中一个对象后点上方「保存当前选中」</span>
+    </div>`;
+    return;
+  }
+
+  for (const a of AssetLib.list) {
+    const card = document.createElement('div');
+    card.className = 'asset-card';
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'ac-canvas';
+    card.appendChild(canvas);
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'ac-name';
+    nameEl.textContent = a.name;
+    nameEl.title = a.name;
+    card.appendChild(nameEl);
+
+    const metaEl = document.createElement('div');
+    metaEl.className = 'ac-meta';
+    metaEl.innerHTML = `<span class="ac-mode${a.mode === '3d' ? ' m3d' : ''}">${a.mode.toUpperCase()}</span><span>${(TYPE_ICONS[a.type] || '▪')} ${esc(a.type)}</span>`;
+    card.appendChild(metaEl);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'ac-del';
+    delBtn.textContent = '×';
+    delBtn.title = '删除资源';
+    delBtn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      if (!confirm('删除资源「' + a.name + '」？')) return;
+      AssetLib.remove(a.id);
+      renderAssetList();
+      toast('已删除资源');
+    });
+    card.appendChild(delBtn);
+
+    // 点击卡片 → 添加资源到场景
+    card.addEventListener('click', () => {
+      useAsset(a);
+    });
+
+    list.appendChild(card);
+    // 渲染缩略图（需要先加入 DOM 获取尺寸）
+    requestAnimationFrame(() => drawAssetThumb(canvas, a));
+  }
+}
+
+function useAsset(asset) {
+  if (asset.mode !== state.mode) {
+    toast(`该资源属于 ${asset.mode.toUpperCase()} 模式，请先切换到 ${asset.mode.toUpperCase()}`);
+    return;
+  }
+  const obj = JSON.parse(JSON.stringify(asset.data));
+  obj.id = uid();
+  // 避免与场景内已有对象 id 冲突
+  if (!obj.bindParent) obj.bindParent = null;
+  if (!obj.logic) obj.logic = [];
+  if (!obj.sound) obj.sound = { enabled: false, type: 'hit', volume: 0.3 };
+  if (state.mode === '2d' && !obj.bindOffset) obj.bindOffset = [0, 0];
+  if (state.mode === '3d' && !obj.bindOffset) obj.bindOffset = [0, 0, 0];
+  if (state.mode === '3d' && !obj.path) obj.path = { enabled: false, points: [], speed: 1, mode: 'loop' };
+  if (obj.type === 'creature' && !obj.bones) obj.bones = defaultBones();
+  if (obj.type === 'text3d') obj._textVersion = 0;
+
+  // 稍微偏移避免完全重叠
+  if (state.mode === '2d') {
+    obj.x = (obj.x || 0) + 30;
+    obj.y = (obj.y || 0) + 30;
+  } else {
+    obj.pos = (obj.pos || [0, 1.5, 0]).slice();
+    obj.pos[0] += 1.2;
+    obj.pos[2] += 1.2;
+  }
+
+  objs().push(obj);
+  if (state.mode === '3d') syncScene3d();
+  select(obj.id);
+  toast('已添加资源：' + asset.name);
+}
+
+function saveCurrentAsAsset() {
+  const o = getSelected();
+  if (!o) return toast('请先选中一个对象');
+
+  const input = $('#assetName');
+  const name = (input.value || o.name || '资源').trim() || '资源';
+  if (AssetLib.add(name, state.mode, o)) {
+    input.value = '';
+    renderAssetList();
+    toast('已保存资源：' + name);
+  }
+}
 
 /* =========================================================
    移动轮盘
@@ -1167,7 +1525,6 @@ async function init3d() {
   controls.target.set(0, 1.2, 0);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.enableZoom = true;  // 允许鼠标滚轮缩放相机（不是页面）
   controls.maxPolarAngle = Math.PI / 2 - 0.02;
   controls.minDistance = 2;
   controls.maxDistance = 120;
@@ -1256,7 +1613,6 @@ function makeMat(T, color) {
   return new T.MeshStandardMaterial({ color: new T.Color(color), roughness: 0.45, metalness: 0.12 });
 }
 
-/* ---------- 3D 文本 Mesh ---------- */
 function buildText3d(o) {
   const T = three3d.THREE;
   const canvas = document.createElement('canvas');
@@ -1279,7 +1635,6 @@ function buildText3d(o) {
   const geo = new T.PlaneGeometry(2 * (canvas.width / canvas.height), 2);
   const mesh = new T.Mesh(geo, mat);
   mesh.userData.isText3d = true;
-  mesh.userData.textCanvas = canvas;
   return mesh;
 }
 
@@ -1363,7 +1718,7 @@ function build3d(o) {
   obj.userData.data = o;
   obj.userData.boneVer = o._boneVersion || 0;
   obj.userData.textVer = o._textVersion || 0;
-  if (obj.isMesh && obj.type !== 'text3d') {
+  if (obj.isMesh && o.type !== 'text3d') {
     obj.castShadow = o.type !== 'plane';
     obj.receiveShadow = true;
     obj.userData.mainMat = obj.material;
@@ -1397,7 +1752,6 @@ function syncScene3d() {
   const list = state.scenes['3d'];
   const ids = new Set(list.map(o => o.id));
 
-  // 删除不存在的对象
   for (const [id, o3] of [...byId]) {
     if (!ids.has(id)) {
       scene.remove(o3);
@@ -1411,14 +1765,12 @@ function syncScene3d() {
 
   for (const o of list) {
     let o3 = byId.get(o.id);
-    // 骨骼重建
     if (o3 && o.type === 'creature' && o3.userData.boneVer !== (o._boneVersion || 0)) {
       scene.remove(o3); disposeObj3d(o3);
       const i = pickables.indexOf(o3); if (i >= 0) pickables.splice(i, 1);
       if (tc.object === o3) tc.detach();
       byId.delete(o.id); o3 = null;
     }
-    // 3D 文本重建
     if (o3 && o.type === 'text3d' && o3.userData.textVer !== (o._textVersion || 0)) {
       scene.remove(o3); disposeObj3d(o3);
       const i = pickables.indexOf(o3); if (i >= 0) pickables.splice(i, 1);
@@ -1613,7 +1965,6 @@ function destroyObj(o) {
   }
 }
 
-/* ---------- 碰撞检测工具 ---------- */
 function rectsOverlap2d(a, b) {
   const ahw = Math.abs(a.w) / 2, ahh = Math.abs(a.h) / 2;
   const bhw = Math.abs(b.w) / 2, bhh = Math.abs(b.h) / 2;
@@ -1633,9 +1984,6 @@ function boxesOverlap3d(a, b) {
          A.min[2] < B.max[2] && A.max[2] > B.min[2];
 }
 
-/* =========================================================
-   交互逻辑系统
-   ========================================================= */
 function executeAction(owner, target, rule) {
   const action = rule.action || 'sound';
   const amount = rule.amount || 0;
@@ -1736,7 +2084,6 @@ function checkLogic(dt) {
   }
 }
 
-/* ---------- 2D 物理 ---------- */
 function step2d(dt) {
   const arr = state.scenes['2d'];
   const FLOOR = 240, WALL = 460;
@@ -1843,7 +2190,6 @@ function step2d(dt) {
   }
 }
 
-/* ---------- 3D 物理 ---------- */
 function step3d(dt) {
   const arr = state.scenes['3d'];
   const snd = [];
@@ -2023,11 +2369,7 @@ requestAnimationFrame(loop);
 /* =========================================================
    层级面板
    ========================================================= */
-const ICONS = {
-  rect: '▭', circle: '●', triangle: '▲', text: 'T',
-  box: '⬛', sphere: '⚪', cylinder: '⬤', cone: '▲', torus: '◎', plane: '▬',
-  pointLight: '💡', directionalLight: '☀', camera3d: '🎥', creature: '🧬', text3d: 'T'
-};
+const ICONS = TYPE_ICONS;
 
 function renderHierarchy() {
   const ul = $('#objList');
@@ -2185,9 +2527,6 @@ function selectSfxRow(label, value, onInput) {
   ], onInput);
 }
 
-/* =========================================================
-   玩家手感快速调节
-   ========================================================= */
 function renderPlayerTuning(o) {
   const wrap = el('div', 'tune-panel');
   const is2d = state.mode === '2d';
@@ -2296,9 +2635,6 @@ function renderPlayerTuning(o) {
   return wrap;
 }
 
-/* =========================================================
-   骨骼编辑器
-   ========================================================= */
 function boneSlider(label, value, min, max, step, onChange, suffix = '') {
   const row = el('div', 'slider-row');
   const digits = step < 1 ? 2 : 0;
@@ -2469,9 +2805,6 @@ function renderBonesEditor(o) {
   return container;
 }
 
-/* =========================================================
-   粒子编辑器
-   ========================================================= */
 function renderParticlesEditor(o) {
   const wrap = el('div');
   o.particles = o.particles || { enabled: true, count: 20, color: o.color, speed: state.mode === '2d' ? 200 : 4, life: 0.8, size: state.mode === '2d' ? 4 : 0.15, gravity: state.mode === '2d' ? 400 : 8, sound: true };
@@ -2502,9 +2835,6 @@ function renderParticlesEditor(o) {
   return wrap;
 }
 
-/* =========================================================
-   交互逻辑编辑器
-   ========================================================= */
 function renderLogicEditor(o) {
   const wrap = el('div');
   if (!o.logic) o.logic = [];
@@ -2681,9 +3011,6 @@ function renderLogicEditor(o) {
   return wrap;
 }
 
-/* =========================================================
-   主渲染
-   ========================================================= */
 function renderInspector() {
   const p = els.props;
   p.innerHTML = '';
@@ -2700,7 +3027,6 @@ function renderInspector() {
   }
 
   if (state.mode === '2d') {
-    /* ========== 2D ========== */
     p.appendChild(groupTitle('变换'));
     p.appendChild(rowVec('位置', [
       { name: 'X', value: o.x, onInput: v => { o.x = v; } },
@@ -2831,7 +3157,6 @@ function renderInspector() {
     p.appendChild(rowNum('音量', o.sound.volume ?? 0.3, v => { o.sound.volume = clamp(v, 0, 1); }, 0.05, 0, 1));
 
   } else {
-    /* ========== 3D ========== */
     p.appendChild(groupTitle('变换'));
     p.appendChild(rowVec('位置', [
       { name: 'X', value: o.pos[0], onInput: v => { o.pos[0] = v; syncScene3d(); } },
@@ -2849,15 +3174,13 @@ function renderInspector() {
       { name: 'Z', value: o.scale[2], onInput: v => { o.scale[2] = v || 0.01; syncScene3d(); } }
     ]));
 
-    // 3D 文本特有字段
     if (o.type === 'text3d') {
       p.appendChild(groupTitle('文字内容'));
-      const txt = rowText('文本', o.text || '文本', v => {
+      p.appendChild(rowText('文本', o.text || '文本', v => {
         o.text = v;
         o._textVersion = (o._textVersion || 0) + 1;
         syncScene3d();
-      });
-      p.appendChild(txt);
+      }));
       p.appendChild(rowNum('字号', o.fontSize || 128, v => {
         o.fontSize = Math.max(24, Math.min(220, v));
         o._textVersion = (o._textVersion || 0) + 1;
@@ -3164,7 +3487,7 @@ function addObject(type) {
 }
 
 /* =========================================================
-   放置栏：滚动提示箭头
+   放置栏：滚动提示 + 移动端友好点击
    ========================================================= */
 function updateAddBtnsScrollArrows() {
   const wrap = document.getElementById('addBtnsWrap');
@@ -3176,17 +3499,39 @@ function updateAddBtnsScrollArrows() {
   wrap.classList.toggle('hasRight', canRight);
 }
 
+/* 关键：用 pointer 事件 + 移动阈值来区分点击和滑动 */
+function makeAddBtn(label, onClick) {
+  const b = document.createElement('button');
+  b.textContent = label;
+  b.style.touchAction = 'pan-x';
+  let sx = 0, sy = 0, moved = false, pid = null;
+  b.addEventListener('pointerdown', e => {
+    sx = e.clientX; sy = e.clientY; moved = false; pid = e.pointerId;
+  });
+  b.addEventListener('pointermove', e => {
+    if (e.pointerId !== pid) return;
+    if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) moved = true;
+  });
+  const fire = e => {
+    if (e.pointerId !== pid) return;
+    if (!moved) onClick();
+    pid = null;
+  };
+  b.addEventListener('pointerup', fire);
+  b.addEventListener('pointercancel', () => { pid = null; moved = true; });
+  // 阻止浏览器默认点击（避免滑动后误触发）
+  b.addEventListener('click', e => e.preventDefault());
+  return b;
+}
+
 function renderAddButtons() {
   const wrap = $('#addBtns');
   wrap.innerHTML = '';
   const list = state.mode === '2d' ? TYPES_2D : TYPES_3D;
   for (const it of list) {
-    const b = document.createElement('button');
-    b.textContent = it.n;
-    b.addEventListener('click', () => addObject(it.t));
+    const b = makeAddBtn(it.n, () => addObject(it.t));
     wrap.appendChild(b);
   }
-  // 重置滚动位置
   wrap.scrollLeft = 0;
   requestAnimationFrame(updateAddBtnsScrollArrows);
 }
@@ -3196,14 +3541,13 @@ function renderAddButtons() {
   const el = $('#addBtns');
   if (!el) return;
   el.addEventListener('scroll', updateAddBtnsScrollArrows, { passive: true });
-  // 滚轮横向滚动
   el.addEventListener('wheel', e => {
     if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
       el.scrollLeft += e.deltaY;
       e.preventDefault();
     }
   }, { passive: false });
-  // 阻止放置栏内的双指缩放
+  // 阻止多指缩放
   el.addEventListener('touchstart', e => {
     if (e.touches.length > 1) e.preventDefault();
   }, { passive: false });
@@ -3240,7 +3584,6 @@ function duplicateSelected() {
     if (c.path) c.path.points = c.path.points.map(p => [p[0] + 1.5, p[1], p[2] + 1.5]);
   }
   if (c.logic) for (const r of c.logic) { r._fired = false; r._timer = 0; }
-  // 文本重建版本
   if (c.type === 'text3d') c._textVersion = 0;
   objs().push(c);
   if (state.mode === '3d') syncScene3d();
@@ -3350,7 +3693,7 @@ function sceneData() {
     }
   }
   return {
-    version: 6,
+    version: 7,
     projectName: state.projectName,
     mode: state.mode,
     scenes: clean,
@@ -3430,7 +3773,6 @@ function buildGameRuntime() {
     const OBJS = (data.scenes[MODE] || []).map(o => JSON.parse(JSON.stringify(o)));
     const TITLE = data.projectName || '我的游戏';
 
-    // 阻止缩放（导出后也同样生效）
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(evt => {
       document.addEventListener(evt, e => e.preventDefault(), { passive: false });
     });
@@ -3439,6 +3781,7 @@ function buildGameRuntime() {
     }, { passive: false });
     let _lte = 0;
     document.addEventListener('touchend', e => {
+      if (e.target.closest('button, input, select, textarea')) return;
       const n = Date.now();
       if (n - _lte < 300) e.preventDefault();
       _lte = n;
@@ -3642,7 +3985,6 @@ function buildGameRuntime() {
       }
     }
 
-    /* ============ 2D ============ */
     const c2d = document.getElementById('c2d');
     const ctx = c2d ? c2d.getContext('2d') : null;
     let CW = 0, CH = 0, DPR = 1;
@@ -3809,7 +4151,6 @@ function buildGameRuntime() {
       if (p) { const k = 1 - Math.exp(-5 * dt); cam.x += (p.x - cam.x) * k; cam.y += (p.y - cam.y) * k; }
     }
 
-    /* ============ 3D ============ */
     let T3, renderer, scene, camera, meshes = new Map(), ptGeo, ptPts, MAXP = 2000;
 
     function mat(c) { return new T3.MeshStandardMaterial({ color: new T3.Color(c), roughness: .45, metalness: .12 }); }
@@ -3852,7 +4193,6 @@ function buildGameRuntime() {
       const mat = new T3.MeshBasicMaterial({ map: tex, transparent: true, side: T3.DoubleSide, depthWrite: false });
       const geo = new T3.PlaneGeometry(2 * (canvas.width / canvas.height), 2);
       const mesh = new T3.Mesh(geo, mat);
-      mesh.userData.isText3d = true;
       return mesh;
     }
 
@@ -4140,8 +4480,9 @@ function exportHTML() {
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:100%;height:100%;overflow:hidden;background:#0d1017;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
-  #c2d{display:none;position:fixed;inset:0}
+    touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+  button{touch-action:manipulation}
+  #c2d{display:none;position:fixed;inset:0;touch-action:none}
   #v3d{display:none;position:fixed;inset:0}
   #v3d canvas{display:block}
   #start{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
@@ -4253,6 +4594,30 @@ $('#objFileInput').addEventListener('change', e => {
   e.target.value = '';
 });
 
+/* ---------- 资源库事件 ---------- */
+$('#assetBtn').addEventListener('click', () => {
+  // 选中对象的名称作为默认
+  const o = getSelected();
+  $('#assetName').value = o ? o.name : '';
+  $('#assetModal').classList.add('on');
+  renderAssetList();
+});
+$('#assetClose').addEventListener('click', () => $('#assetModal').classList.remove('on'));
+$('#assetModal').addEventListener('click', e => {
+  if (e.target.id === 'assetModal') $('#assetModal').classList.remove('on');
+});
+$('#assetSaveCurrent').addEventListener('click', saveCurrentAsAsset);
+$('#assetName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveCurrentAsAsset();
+});
+$('#assetClearAll').addEventListener('click', () => {
+  if (!AssetLib.list.length) return toast('资源库已是空的');
+  if (!confirm('确定要清空全部 ' + AssetLib.list.length + ' 个资源吗？此操作不可恢复。')) return;
+  AssetLib.clear();
+  renderAssetList();
+  toast('资源库已清空');
+});
+
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
   if (e.code === 'Space') { spaceDown = true; if (state.mode === '2d' && !state.playing) cv.style.cursor = 'grab'; }
@@ -4290,6 +4655,7 @@ window.addEventListener('resize', () => requestAnimationFrame(updateAddBtnsScrol
 /* =========================================================
    启动
    ========================================================= */
+AssetLib.load();
 setupJoystick();
 seed();
 renderAddButtons();
