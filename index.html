@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>游戏编辑器 · 2D / 3D Pro+</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,6 +17,9 @@
     background: var(--bg); color: var(--text);
     font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     overflow: hidden; user-select: none;
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
   #intro {
@@ -43,19 +46,21 @@
   #app { display: flex; flex-direction: column; height: 100vh; }
 
   #toolbar {
-    display: flex; align-items: center; gap: 7px;
-    padding: 7px 12px; background: var(--panel);
-    border-bottom: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap;
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 10px; background: var(--panel);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+    min-width: 0;
   }
-  .brand { font-weight: 800; font-size: 13px; letter-spacing: .5px; }
+  .brand { font-weight: 800; font-size: 13px; letter-spacing: .5px; flex-shrink: 0; }
   .brand span { color: var(--accent); }
-  .sep { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
-  .spacer { flex: 1; }
+  .sep { width: 1px; height: 22px; background: var(--border); margin: 0 1px; flex-shrink: 0; }
+  .spacer { flex: 1; min-width: 0; }
 
   #projName {
     background: #0d1016; color: var(--text); border: 1px solid var(--border);
     border-radius: 6px; padding: 6px 10px; font-size: 12px;
-    font-family: inherit; outline: none; width: 150px; font-weight: 700;
+    font-family: inherit; outline: none; width: 130px; font-weight: 700;
+    flex-shrink: 0;
   }
   #projName:focus { border-color: var(--accent); }
 
@@ -64,6 +69,7 @@
     border: 1px solid var(--border); border-radius: 6px;
     padding: 6px 11px; font-size: 12px; font-family: inherit;
     cursor: pointer; transition: all .12s; white-space: nowrap;
+    flex-shrink: 0;
   }
   button:hover { background: #2b3140; border-color: #3d4557; }
   button:active { transform: translateY(1px); }
@@ -76,12 +82,60 @@
   button.mini { padding: 3px 8px; font-size: 11px; }
   button.tiny { padding: 2px 6px; font-size: 10px; }
 
-  .seg { display: flex; background: var(--panel2); border-radius: 7px; padding: 2px; border: 1px solid var(--border); }
-  .seg button { border: none; background: transparent; padding: 5px 16px; border-radius: 5px; font-weight: 700; }
+  .seg { display: flex; background: var(--panel2); border-radius: 7px; padding: 2px; border: 1px solid var(--border); flex-shrink: 0; }
+  .seg button { border: none; background: transparent; padding: 5px 14px; border-radius: 5px; font-weight: 700; }
   .seg button.active { background: var(--accent); color: #fff; }
 
-  #addBtns { display: flex; gap: 5px; flex-wrap: wrap; }
-  #addBtns button { padding: 6px 9px; font-size: 11.5px; }
+  /* ============ 放置栏：水平滚动，禁止缩放 ============ */
+  #addBtns {
+    display: flex;
+    gap: 5px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    padding: 2px 4px 4px 4px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  }
+  #addBtns::-webkit-scrollbar { display: none; height: 0; width: 0; }
+  #addBtns button {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+  /* 滚动提示箭头 */
+  #addBtnsWrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+  #addBtnsWrap::before,
+  #addBtnsWrap::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 14px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  #addBtnsWrap::before { left: 0; background: linear-gradient(to right, var(--panel), transparent); }
+  #addBtnsWrap::after { right: 0; background: linear-gradient(to left, var(--panel), transparent); }
+  #addBtnsWrap.hasLeft::before { opacity: 1; }
+  #addBtnsWrap.hasRight::after { opacity: 1; }
 
   main { flex: 1; display: flex; min-height: 0; }
   aside { background: var(--panel); display: flex; flex-direction: column; flex-shrink: 0; }
@@ -113,7 +167,7 @@
   #objList li .eye:hover { opacity: 1; }
 
   #viewport { flex: 1; position: relative; min-width: 0; background: #14171e; overflow: hidden; }
-  #cv2d { position: absolute; inset: 0; display: block; cursor: crosshair; }
+  #cv2d { position: absolute; inset: 0; display: block; cursor: crosshair; touch-action: none; }
   #vp3d { position: absolute; inset: 0; display: none; }
   #vp3d canvas { display: block; }
   #playBadge {
@@ -125,7 +179,6 @@
   #playBadge.on { display: block; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
 
-  /* ================= 移动轮盘 ================= */
   #joystick {
     position: absolute; left: 26px; bottom: 26px;
     width: 130px; height: 130px;
@@ -256,25 +309,17 @@
     background: #1a2029; border-radius: 2px; outline: none;
   }
 
-  /* ============== 交互逻辑卡片 ============== */
   .logic-card {
     background: #10141b; border: 1px solid var(--border); border-radius: 7px;
     padding: 8px; margin-bottom: 7px;
     border-left: 3px solid #ffd93d;
   }
   .logic-card.disabled { opacity: .5; border-left-color: #555; }
-  .logic-card .lc-head {
-    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
-  }
-  .logic-card .lc-head .lc-idx {
-    font-size: 10px; font-weight: 800; color: #ffd93d; letter-spacing: 1px;
-  }
+  .logic-card .lc-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .logic-card .lc-head .lc-idx { font-size: 10px; font-weight: 800; color: #ffd93d; letter-spacing: 1px; }
   .logic-card .lc-head .lc-spacer { flex: 1; }
   .logic-card .lc-row { margin-bottom: 5px; }
-  .logic-card .lc-row label {
-    display: block; font-size: 10px; color: var(--text-dim);
-    font-weight: 700; margin-bottom: 2px;
-  }
+  .logic-card .lc-row label { display: block; font-size: 10px; color: var(--text-dim); font-weight: 700; margin-bottom: 2px; }
   .logic-card .lc-row select,
   .logic-card .lc-row input {
     width: 100%; background: #0d1016; color: var(--text);
@@ -324,6 +369,18 @@
   }
   .modal textarea:focus { border-color: var(--accent); }
   .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+  /* 响应式 */
+  @media (max-width: 900px) {
+    #hierarchy { width: 160px; }
+    #inspector { width: 260px; }
+    #projName { width: 100px; }
+  }
+  @media (max-width: 640px) {
+    #hierarchy { display: none; }
+    .brand { font-size: 12px; }
+    #projName { width: 90px; font-size: 11px; }
+  }
 </style>
 <script type="importmap">
 {
@@ -339,7 +396,7 @@
 <div id="intro">
   <div class="logo">🎮</div>
   <div class="title">GAME EDITOR</div>
-  <div class="sub">JOYSTICK · LOGIC · PLAY</div>
+  <div class="sub">SCROLL · TEXT · PLAY</div>
   <div class="bar"><i></i></div>
 </div>
 
@@ -352,7 +409,9 @@
       <button data-mode="3d">3D</button>
     </div>
     <div class="sep"></div>
-    <div id="addBtns"></div>
+    <div id="addBtnsWrap">
+      <div id="addBtns"></div>
+    </div>
     <div class="sep"></div>
     <button id="playBtn" class="green">▶ 播放</button>
     <button id="stopBtn">■ 停止</button>
@@ -415,6 +474,35 @@
 </div>
 
 <script type="module">
+/* =========================================================
+   禁止缩放（浏览器/移动端）
+   ========================================================= */
+// 1. 阻止双指手势缩放（Safari）
+['gesturestart', 'gesturechange', 'gestureend'].forEach(evt => {
+  document.addEventListener(evt, e => e.preventDefault(), { passive: false });
+});
+// 2. 阻止多指触摸缩放
+document.addEventListener('touchmove', e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+// 3. 阻止双击缩放
+let _lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - _lastTouchEnd < 300) e.preventDefault();
+  _lastTouchEnd = now;
+}, { passive: false });
+// 4. 阻止 Ctrl/⌘ + 滚轮缩放（不影响画布本身的普通滚轮缩放）
+window.addEventListener('wheel', e => {
+  if (e.ctrlKey || e.metaKey) e.preventDefault();
+}, { passive: false, capture: true });
+// 5. 阻止键盘缩放快捷键
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && ['+', '=', '-', '_', '0'].includes(e.key)) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
 /* =========================================================
    工具
    ========================================================= */
@@ -505,7 +593,7 @@ function sfxT(key, type, vol) {
 }
 
 /* =========================================================
-   键盘状态（用于逻辑触发器）
+   键盘状态
    ========================================================= */
 const keysDown = {};
 window.addEventListener('keydown', e => { keysDown[e.key.toLowerCase()] = true; });
@@ -541,16 +629,9 @@ const objs = () => state.scenes[state.mode];
 const getSelected = () => objs().find(o => o.id === state.selectedId) || null;
 
 /* =========================================================
-   移动轮盘（虚拟摇杆）
+   移动轮盘
    ========================================================= */
-const joy = {
-  active: false,
-  pointerId: null,
-  dx: 0,
-  dy: 0,
-  el: null,
-  stickEl: null
-};
+const joy = { active: false, pointerId: null, dx: 0, dy: 0, el: null, stickEl: null };
 let joyShown = false;
 
 function setupJoystick() {
@@ -575,8 +656,7 @@ function setupJoystick() {
 
   el.addEventListener('pointerdown', e => {
     if (!state.playing) return;
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     try { el.setPointerCapture(e.pointerId); } catch (_) {}
     joy.pointerId = e.pointerId;
     joy.active = true;
@@ -692,6 +772,11 @@ function seed() {
         { id: 'L1', enabled: true, trigger: 'collide', targetId: '', action: 'sound', sound: 'coin', amount: 0, once: true }
       ],
       sound: { enabled: true, type: 'beep', volume: 0.18 } },
+    { id: uid(), name: '标题', type: 'text', x: 0, y: -270, w: 200, h: 30, rot: 0,
+      color: '#e8eef8', text: 'HELLO WORLD', fontSize: 30, visible: true,
+      vx: 0, vy: 0, gravity: 0, bounce: 0, collide: false, isPlayer: false,
+      bindParent: null, bindOffset: [0, 0], logic: [],
+      sound: { enabled: false, type: 'coin', volume: 0.3 } },
     { id: uid(), name: '小怪', type: 'creature', x: 260, y: 100, w: 56, h: 96, rot: 0,
       color: '#ff5b5b', visible: true, vx: -30, vy: 0, gravity: 1000, bounce: 0.4,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0],
@@ -715,6 +800,13 @@ function seed() {
       logic: [],
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: true, type: 'hit', volume: 0.25 } },
+    { id: uid(), name: '标题文字', type: 'text3d', pos: [0, 3, 0], rot: [0, 0, 0], scale: [2, 1, 1],
+      color: '#e8eef8', text: 'HELLO WORLD', fontSize: 128, visible: true,
+      spin: 0, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
+      collide: false, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
+      path: { enabled: false, points: [], speed: 1, mode: 'loop' },
+      sound: { enabled: false, type: 'beep', volume: 0.3 } },
     { id: uid(), name: '悬浮方块', type: 'box', pos: [3, 1.5, 0], rot: [0, 0, 0], scale: [1.6, 1.6, 1.6],
       color: '#2ee6a8', visible: true, spin: 0.5, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
@@ -1028,6 +1120,7 @@ cv.addEventListener('pointerup', e => {
 });
 cv.addEventListener('pointercancel', () => { drag2d = null; });
 cv.addEventListener('wheel', e => {
+  if (e.ctrlKey || e.metaKey) return;
   e.preventDefault();
   const r = cv.getBoundingClientRect();
   const sx = e.clientX - r.left, sy = e.clientY - r.top;
@@ -1074,6 +1167,7 @@ async function init3d() {
   controls.target.set(0, 1.2, 0);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
+  controls.enableZoom = true;  // 允许鼠标滚轮缩放相机（不是页面）
   controls.maxPolarAngle = Math.PI / 2 - 0.02;
   controls.minDistance = 2;
   controls.maxDistance = 120;
@@ -1162,6 +1256,33 @@ function makeMat(T, color) {
   return new T.MeshStandardMaterial({ color: new T.Color(color), roughness: 0.45, metalness: 0.12 });
 }
 
+/* ---------- 3D 文本 Mesh ---------- */
+function buildText3d(o) {
+  const T = three3d.THREE;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 256;
+  const c = canvas.getContext('2d');
+  c.clearRect(0, 0, canvas.width, canvas.height);
+  const size = Math.min(200, o.fontSize || 128);
+  c.font = `bold ${size}px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.fillStyle = o.color || '#e8eef8';
+  c.shadowColor = o.color || '#e8eef8';
+  c.shadowBlur = 22;
+  c.fillText(o.text || '文本', canvas.width / 2, canvas.height / 2);
+  const tex = new T.CanvasTexture(canvas);
+  tex.colorSpace = T.SRGBColorSpace;
+  tex.needsUpdate = true;
+  const mat = new T.MeshBasicMaterial({ map: tex, transparent: true, side: T.DoubleSide, depthWrite: false });
+  const geo = new T.PlaneGeometry(2 * (canvas.width / canvas.height), 2);
+  const mesh = new T.Mesh(geo, mat);
+  mesh.userData.isText3d = true;
+  mesh.userData.textCanvas = canvas;
+  return mesh;
+}
+
 function buildCreature3d(o) {
   const T = three3d.THREE;
   const bones = o.bones && o.bones.length ? o.bones : defaultBones();
@@ -1208,6 +1329,7 @@ function build3d(o) {
     case 'torus':     obj = new T.Mesh(new T.TorusGeometry(0.5, 0.2, 18, 48), makeMat(T, col)); break;
     case 'plane':     obj = new T.Mesh(new T.PlaneGeometry(1, 1), makeMat(T, col)); break;
     case 'creature':  obj = buildCreature3d(o); break;
+    case 'text3d':    obj = buildText3d(o); break;
     case 'pointLight': {
       obj = new T.Group();
       const bulb = new T.Mesh(new T.SphereGeometry(0.16, 16, 12), new T.MeshBasicMaterial({ color: col }));
@@ -1240,7 +1362,8 @@ function build3d(o) {
   obj.userData.dataId = o.id;
   obj.userData.data = o;
   obj.userData.boneVer = o._boneVersion || 0;
-  if (obj.isMesh) {
+  obj.userData.textVer = o._textVersion || 0;
+  if (obj.isMesh && obj.type !== 'text3d') {
     obj.castShadow = o.type !== 'plane';
     obj.receiveShadow = true;
     obj.userData.mainMat = obj.material;
@@ -1259,7 +1382,11 @@ function disposeObj3d(obj) {
   obj.traverse(n => {
     if (n.geometry) n.geometry.dispose();
     if (n.material) {
-      Array.isArray(n.material) ? n.material.forEach(m => m.dispose()) : n.material.dispose();
+      if (Array.isArray(n.material)) n.material.forEach(m => m.dispose());
+      else {
+        if (n.material.map) n.material.map.dispose();
+        n.material.dispose();
+      }
     }
   });
 }
@@ -1270,6 +1397,7 @@ function syncScene3d() {
   const list = state.scenes['3d'];
   const ids = new Set(list.map(o => o.id));
 
+  // 删除不存在的对象
   for (const [id, o3] of [...byId]) {
     if (!ids.has(id)) {
       scene.remove(o3);
@@ -1283,14 +1411,19 @@ function syncScene3d() {
 
   for (const o of list) {
     let o3 = byId.get(o.id);
+    // 骨骼重建
     if (o3 && o.type === 'creature' && o3.userData.boneVer !== (o._boneVersion || 0)) {
-      scene.remove(o3);
-      disposeObj3d(o3);
-      const i = pickables.indexOf(o3);
-      if (i >= 0) pickables.splice(i, 1);
+      scene.remove(o3); disposeObj3d(o3);
+      const i = pickables.indexOf(o3); if (i >= 0) pickables.splice(i, 1);
       if (tc.object === o3) tc.detach();
-      byId.delete(o.id);
-      o3 = null;
+      byId.delete(o.id); o3 = null;
+    }
+    // 3D 文本重建
+    if (o3 && o.type === 'text3d' && o3.userData.textVer !== (o._textVersion || 0)) {
+      scene.remove(o3); disposeObj3d(o3);
+      const i = pickables.indexOf(o3); if (i >= 0) pickables.splice(i, 1);
+      if (tc.object === o3) tc.detach();
+      byId.delete(o.id); o3 = null;
     }
     if (!o3) {
       o3 = build3d(o);
@@ -1298,6 +1431,7 @@ function syncScene3d() {
       byId.set(o.id, o3);
       pickables.push(o3);
       if (o.type === 'creature') o3.userData.boneVer = o._boneVersion || 0;
+      if (o.type === 'text3d') o3.userData.textVer = o._textVersion || 0;
     }
     applyTransform3d(o3, o);
 
@@ -1485,18 +1619,18 @@ function rectsOverlap2d(a, b) {
   const bhw = Math.abs(b.w) / 2, bhh = Math.abs(b.h) / 2;
   return Math.abs(b.x - a.x) < ahw + bhw && Math.abs(b.y - a.y) < ahh + bhh;
 }
-function boxesOverlap3d(a, b) {
-  const A = bbox3(a), B = bbox3(b);
-  return A.min[0] < B.max[0] && A.max[0] > B.min[0] &&
-         A.min[1] < B.max[1] && A.max[1] > B.min[1] &&
-         A.min[2] < B.max[2] && A.max[2] > B.min[2];
-}
 function bbox3(o) {
   const s = o.scale, p = o.pos;
   return {
     min: [p[0] - s[0] / 2, p[1] - s[1] / 2, p[2] - s[2] / 2],
     max: [p[0] + s[0] / 2, p[1] + s[1] / 2, p[2] + s[2] / 2]
   };
+}
+function boxesOverlap3d(a, b) {
+  const A = bbox3(a), B = bbox3(b);
+  return A.min[0] < B.max[0] && A.max[0] > B.min[0] &&
+         A.min[1] < B.max[1] && A.max[1] > B.min[1] &&
+         A.min[2] < B.max[2] && A.max[2] > B.min[2];
 }
 
 /* =========================================================
@@ -1608,7 +1742,6 @@ function step2d(dt) {
   const FLOOR = 240, WALL = 460;
   const snd = [];
 
-  // 摇杆控制玩家
   for (const o of arr) {
     if (o.isPlayer && o.controllable !== false && joy.active) {
       const spd = o.moveSpeed ?? 320;
@@ -1715,7 +1848,6 @@ function step3d(dt) {
   const arr = state.scenes['3d'];
   const snd = [];
 
-  // 摇杆控制 3D 玩家（相对相机）
   if (joy.active && three3d) {
     const p = arr.find(o => o.isPlayer && o.controllable !== false && !o._dead);
     if (p) {
@@ -1894,7 +2026,7 @@ requestAnimationFrame(loop);
 const ICONS = {
   rect: '▭', circle: '●', triangle: '▲', text: 'T',
   box: '⬛', sphere: '⚪', cylinder: '⬤', cone: '▲', torus: '◎', plane: '▬',
-  pointLight: '💡', directionalLight: '☀', camera3d: '🎥', creature: '🧬'
+  pointLight: '💡', directionalLight: '☀', camera3d: '🎥', creature: '🧬', text3d: 'T'
 };
 
 function renderHierarchy() {
@@ -2054,7 +2186,7 @@ function selectSfxRow(label, value, onInput) {
 }
 
 /* =========================================================
-   ★ 玩家手感快速调节面板
+   玩家手感快速调节
    ========================================================= */
 function renderPlayerTuning(o) {
   const wrap = el('div', 'tune-panel');
@@ -2096,7 +2228,6 @@ function renderPlayerTuning(o) {
   bRow.appendChild(bInp);
   wrap.appendChild(bRow);
 
-  // 移动速度
   const sRow = el('div', 'tune-slider');
   const sMax = is2d ? 800 : 20;
   const sStep = is2d ? 10 : 0.5;
@@ -2114,7 +2245,6 @@ function renderPlayerTuning(o) {
   sRow.appendChild(sInp);
   wrap.appendChild(sRow);
 
-  // 重力预设
   const gPre = el('div', 'tune-presets');
   gPre.appendChild(el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重力预设</span>'));
   const gravPresets = is2d
@@ -2167,7 +2297,7 @@ function renderPlayerTuning(o) {
 }
 
 /* =========================================================
-   ★ 骨骼编辑器
+   骨骼编辑器
    ========================================================= */
 function boneSlider(label, value, min, max, step, onChange, suffix = '') {
   const row = el('div', 'slider-row');
@@ -2373,7 +2503,7 @@ function renderParticlesEditor(o) {
 }
 
 /* =========================================================
-   ★ 交互逻辑编辑器
+   交互逻辑编辑器
    ========================================================= */
 function renderLogicEditor(o) {
   const wrap = el('div');
@@ -2387,7 +2517,6 @@ function renderLogicEditor(o) {
     const head = el('div', 'lc-head');
     head.appendChild(el('span', 'lc-idx', '规则 #' + (i + 1)));
     head.appendChild(el('span', 'lc-spacer'));
-    // 启用复选框
     const enChk = document.createElement('input');
     enChk.type = 'checkbox'; enChk.checked = rule.enabled !== false;
     enChk.style.cssText = 'width:14px;height:14px;accent-color:#ffd93d;cursor:pointer;';
@@ -2396,7 +2525,6 @@ function renderLogicEditor(o) {
       renderInspector();
     });
     head.appendChild(enChk);
-    // 删除按钮
     const delBtn = el('button', 'tiny danger', '×');
     delBtn.addEventListener('click', () => {
       o.logic.splice(i, 1);
@@ -2406,7 +2534,6 @@ function renderLogicEditor(o) {
     head.appendChild(delBtn);
     card.appendChild(head);
 
-    // 触发方式
     const trigRow = el('div', 'lc-row');
     trigRow.appendChild(el('label', null, '触发方式'));
     const trigSel = document.createElement('select');
@@ -2423,7 +2550,6 @@ function renderLogicEditor(o) {
     trigRow.appendChild(trigSel);
     card.appendChild(trigRow);
 
-    // 目标对象（仅碰撞时）
     if (rule.trigger === 'collide') {
       const tRow = el('div', 'lc-row');
       tRow.appendChild(el('label', null, '碰撞目标（留空 = 任意对象）'));
@@ -2442,7 +2568,6 @@ function renderLogicEditor(o) {
       card.appendChild(tRow);
     }
 
-    // 按键（仅按键时）
     if (rule.trigger === 'keypress') {
       const kRow = el('div', 'lc-row');
       kRow.appendChild(el('label', null, '按键'));
@@ -2455,7 +2580,6 @@ function renderLogicEditor(o) {
       card.appendChild(kRow);
     }
 
-    // 间隔（仅定时）
     if (rule.trigger === 'interval') {
       const iRow = el('div', 'lc-row');
       iRow.appendChild(el('label', null, '间隔（秒）'));
@@ -2468,7 +2592,6 @@ function renderLogicEditor(o) {
       card.appendChild(iRow);
     }
 
-    // 动作
     const aRow = el('div', 'lc-row');
     aRow.appendChild(el('label', null, '执行动作'));
     const aSel = document.createElement('select');
@@ -2496,7 +2619,6 @@ function renderLogicEditor(o) {
     aRow.appendChild(aSel);
     card.appendChild(aRow);
 
-    // 数值
     if (['damage_target', 'damage_self', 'heal_self', 'heal_target', 'push_target'].includes(rule.action)) {
       const nRow = el('div', 'lc-row');
       nRow.appendChild(el('label', null, '数值'));
@@ -2508,7 +2630,6 @@ function renderLogicEditor(o) {
       card.appendChild(nRow);
     }
 
-    // 音效
     if (rule.action === 'sound') {
       const sRow = el('div', 'lc-row');
       sRow.appendChild(el('label', null, '音效'));
@@ -2524,7 +2645,6 @@ function renderLogicEditor(o) {
       card.appendChild(sRow);
     }
 
-    // 仅一次
     const oRow = el('div', 'lc-row');
     const oChk = document.createElement('input');
     oChk.type = 'checkbox'; oChk.checked = rule.once !== false;
@@ -2594,8 +2714,8 @@ function renderInspector() {
     if (o.type === 'rect') p.appendChild(rowNum('圆角', o.radius || 0, v => { o.radius = v; }, 1));
 
     if (o.type === 'text') {
-      p.appendChild(groupTitle('文字'));
-      p.appendChild(rowText('内容', o.text, v => { o.text = v; }));
+      p.appendChild(groupTitle('文字内容'));
+      p.appendChild(rowText('文本', o.text, v => { o.text = v; }));
       p.appendChild(rowNum('字号', o.fontSize || 24, v => { o.fontSize = Math.max(6, v); }, 1));
     }
 
@@ -2647,7 +2767,6 @@ function renderInspector() {
     p.appendChild(groupTitle('粒子破坏与效果'));
     p.appendChild(renderParticlesEditor(o));
 
-    // ★ 玩家控制
     p.appendChild(groupTitle('玩家控制'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
@@ -2664,7 +2783,6 @@ function renderInspector() {
       }
     }
 
-    // ★ 交互逻辑
     p.appendChild(groupTitle('交互逻辑'));
     p.appendChild(renderLogicEditor(o));
 
@@ -2731,8 +2849,28 @@ function renderInspector() {
       { name: 'Z', value: o.scale[2], onInput: v => { o.scale[2] = v || 0.01; syncScene3d(); } }
     ]));
 
+    // 3D 文本特有字段
+    if (o.type === 'text3d') {
+      p.appendChild(groupTitle('文字内容'));
+      const txt = rowText('文本', o.text || '文本', v => {
+        o.text = v;
+        o._textVersion = (o._textVersion || 0) + 1;
+        syncScene3d();
+      });
+      p.appendChild(txt);
+      p.appendChild(rowNum('字号', o.fontSize || 128, v => {
+        o.fontSize = Math.max(24, Math.min(220, v));
+        o._textVersion = (o._textVersion || 0) + 1;
+        syncScene3d();
+      }, 4, 24, 220));
+    }
+
     p.appendChild(groupTitle('外观'));
-    p.appendChild(rowColor('颜色', o.color, v => { o.color = v; syncScene3d(); }));
+    p.appendChild(rowColor('颜色', o.color, v => {
+      o.color = v;
+      if (o.type === 'text3d') o._textVersion = (o._textVersion || 0) + 1;
+      syncScene3d();
+    }));
     if (o.intensity != null) p.appendChild(rowNum('光照强度', o.intensity, v => { o.intensity = Math.max(0, v); syncScene3d(); }, 1));
     if (o.type === 'camera3d') p.appendChild(rowNum('视野 FOV', o.fov ?? 50, v => { o.fov = clamp(v, 10, 140); }, 1));
     p.appendChild(rowCheck('可见', o.visible !== false, v => { o.visible = v; syncScene3d(); renderHierarchy(); }));
@@ -2781,7 +2919,6 @@ function renderInspector() {
     p.appendChild(groupTitle('粒子破坏与效果'));
     p.appendChild(renderParticlesEditor(o));
 
-    // ★ 玩家控制
     p.appendChild(groupTitle('玩家控制'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
@@ -2795,7 +2932,6 @@ function renderInspector() {
       p.appendChild(rowNum('移动速度', o.moveSpeed ?? 7, v => { o.moveSpeed = Math.max(0.5, v); }, 0.5, 0.5));
     }
 
-    // ★ 交互逻辑
     p.appendChild(groupTitle('交互逻辑'));
     p.appendChild(renderLogicEditor(o));
 
@@ -2928,6 +3064,7 @@ const TYPES_3D = [
   { t: 'cone', n: '▲ 圆锥' },
   { t: 'torus', n: '◎ 圆环' },
   { t: 'plane', n: '▬ 平面' },
+  { t: 'text3d', n: 'T 文本' },
   { t: 'creature', n: '🧬 生物' },
   { t: 'pointLight', n: '💡 点光' },
   { t: 'directionalLight', n: '☀ 平行光' },
@@ -2966,7 +3103,7 @@ function addObject(type) {
     const names = {
       box: '立方体', sphere: '球体', cylinder: '圆柱', cone: '圆锥',
       torus: '圆环', plane: '平面', pointLight: '点光源',
-      directionalLight: '平行光', camera3d: '相机', creature: '生物'
+      directionalLight: '平行光', camera3d: '相机', creature: '生物', text3d: '文本'
     };
     o = {
       id: uid(), name: names[type] || type, type,
@@ -2984,6 +3121,15 @@ function addObject(type) {
     if (type === 'box') o.color = '#4a9eff';
     if (type === 'sphere') o.color = '#ff6b6b';
     if (type === 'torus') o.color = '#ffd93d';
+    if (type === 'text3d') {
+      o.color = '#e8eef8';
+      o.text = '新文本';
+      o.fontSize = 128;
+      o.pos = [0, 2, 0];
+      o.scale = [2, 1, 1];
+      o.collide = false;
+      o._textVersion = 0;
+    }
     if (type === 'pointLight' || type === 'directionalLight') {
       o.color = '#ffffff';
       o.intensity = type === 'pointLight' ? 25 : 2;
@@ -3017,6 +3163,19 @@ function addObject(type) {
   toast('已添加：' + o.name);
 }
 
+/* =========================================================
+   放置栏：滚动提示箭头
+   ========================================================= */
+function updateAddBtnsScrollArrows() {
+  const wrap = document.getElementById('addBtnsWrap');
+  const el = document.getElementById('addBtns');
+  if (!wrap || !el) return;
+  const canLeft = el.scrollLeft > 2;
+  const canRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+  wrap.classList.toggle('hasLeft', canLeft);
+  wrap.classList.toggle('hasRight', canRight);
+}
+
 function renderAddButtons() {
   const wrap = $('#addBtns');
   wrap.innerHTML = '';
@@ -3027,7 +3186,31 @@ function renderAddButtons() {
     b.addEventListener('click', () => addObject(it.t));
     wrap.appendChild(b);
   }
+  // 重置滚动位置
+  wrap.scrollLeft = 0;
+  requestAnimationFrame(updateAddBtnsScrollArrows);
 }
+
+// 监听放置栏滚动
+(function () {
+  const el = $('#addBtns');
+  if (!el) return;
+  el.addEventListener('scroll', updateAddBtnsScrollArrows, { passive: true });
+  // 滚轮横向滚动
+  el.addEventListener('wheel', e => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      el.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
+  // 阻止放置栏内的双指缩放
+  el.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  el.addEventListener('touchmove', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+})();
 
 /* =========================================================
    删除 / 复制 / 单对象保存
@@ -3056,8 +3239,9 @@ function duplicateSelected() {
     c.pos[0] += 1.5; c.pos[2] += 1.5;
     if (c.path) c.path.points = c.path.points.map(p => [p[0] + 1.5, p[1], p[2] + 1.5]);
   }
-  // 清空运行状态
   if (c.logic) for (const r of c.logic) { r._fired = false; r._timer = 0; }
+  // 文本重建版本
+  if (c.type === 'text3d') c._textVersion = 0;
   objs().push(c);
   if (state.mode === '3d') syncScene3d();
   select(c.id);
@@ -3070,7 +3254,7 @@ function saveSingleObject() {
   if (clean.logic) for (const r of clean.logic) { delete r._fired; delete r._timer; }
   const data = {
     type: 'single-object',
-    version: 2,
+    version: 3,
     mode: state.mode,
     object: clean
   };
@@ -3094,6 +3278,7 @@ function loadSingleObject(file) {
       if (!obj.logic) obj.logic = [];
       if (state.mode === '3d' && !obj.path) obj.path = { enabled: false, points: [], speed: 1, mode: 'loop' };
       if (obj.type === 'creature' && !obj.bones) obj.bones = defaultBones();
+      if (obj.type === 'text3d') obj._textVersion = 0;
       objs().push(obj);
       if (state.mode === '3d') syncScene3d();
       select(obj.id);
@@ -3165,7 +3350,7 @@ function sceneData() {
     }
   }
   return {
-    version: 5,
+    version: 6,
     projectName: state.projectName,
     mode: state.mode,
     scenes: clean,
@@ -3201,6 +3386,7 @@ function loadJSON(text) {
         if (o.controllable === undefined && o.isPlayer) o.controllable = true;
         if (o.moveSpeed === undefined && o.isPlayer) o.moveSpeed = k === '2d' ? 320 : 7;
         if (k === '3d' && !o.path) o.path = { enabled: false, points: [], speed: 1, mode: 'loop' };
+        if (o.type === 'text3d' && o._textVersion === undefined) o._textVersion = 0;
         if (o.type === 'creature') {
           if (!o.bones) o.bones = defaultBones();
           if (o.maxHp == null) o.maxHp = 30;
@@ -3244,14 +3430,29 @@ function buildGameRuntime() {
     const OBJS = (data.scenes[MODE] || []).map(o => JSON.parse(JSON.stringify(o)));
     const TITLE = data.projectName || '我的游戏';
 
+    // 阻止缩放（导出后也同样生效）
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(evt => {
+      document.addEventListener(evt, e => e.preventDefault(), { passive: false });
+    });
+    document.addEventListener('touchmove', e => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+    let _lte = 0;
+    document.addEventListener('touchend', e => {
+      const n = Date.now();
+      if (n - _lte < 300) e.preventDefault();
+      _lte = n;
+    }, { passive: false });
+    window.addEventListener('wheel', e => {
+      if (e.ctrlKey || e.metaKey) e.preventDefault();
+    }, { passive: false, capture: true });
+
     let audioCtx = null, running = false, lastT = 0;
 
-    // 键盘状态
     const keys = {};
     addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
     addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-    // 音效
     const SFX = {
       jump: ['square',180,520,.14], hit: ['sawtooth',260,70,.16], coin: ['sine',880,1400,.22],
       laser: ['sawtooth',1400,220,.2], explosion: ['sawtooth',140,40,.5],
@@ -3274,7 +3475,6 @@ function buildGameRuntime() {
     const th = {};
     function sfxT(k, t, v) { const n = performance.now(); if (th[k] && n - th[k] < 90) return; th[k] = n; sfx(t, v); }
 
-    // 摇杆
     const J = { active: false, pointerId: null, dx: 0, dy: 0, el: null, stick: null };
     function setupJoy() {
       const el = document.getElementById('joystick');
@@ -3309,7 +3509,6 @@ function buildGameRuntime() {
       el.addEventListener('pointercancel', end);
     }
 
-    // 粒子
     const PL = [];
     function spawnP2(x, y, c) {
       const n = c.count || 18;
@@ -3359,11 +3558,14 @@ function buildGameRuntime() {
       }
     }
 
-    // 碰撞工具
     function rOverlap(a, b) {
       const ahw = Math.abs(a.w)/2, ahh = Math.abs(a.h)/2;
       const bhw = Math.abs(b.w)/2, bhh = Math.abs(b.h)/2;
       return Math.abs(b.x - a.x) < ahw + bhw && Math.abs(b.y - a.y) < ahh + bhh;
+    }
+    function bbox(o) {
+      const s = o.scale, p = o.pos;
+      return { min: [p[0]-s[0]/2,p[1]-s[1]/2,p[2]-s[2]/2], max: [p[0]+s[0]/2,p[1]+s[1]/2,p[2]+s[2]/2] };
     }
     function bOverlap(a, b) {
       const A = bbox(a), B = bbox(b);
@@ -3371,12 +3573,7 @@ function buildGameRuntime() {
              A.min[1] < B.max[1] && A.max[1] > B.min[1] &&
              A.min[2] < B.max[2] && A.max[2] > B.min[2];
     }
-    function bbox(o) {
-      const s = o.scale, p = o.pos;
-      return { min: [p[0]-s[0]/2,p[1]-s[1]/2,p[2]-s[2]/2], max: [p[0]+s[0]/2,p[1]+s[1]/2,p[2]+s[2]/2] };
-    }
 
-    // 交互逻辑
     function execAction(owner, target, rule) {
       const act = rule.action || 'sound';
       const amt = rule.amount || 0;
@@ -3445,7 +3642,7 @@ function buildGameRuntime() {
       }
     }
 
-    // ================= 2D =================
+    /* ============ 2D ============ */
     const c2d = document.getElementById('c2d');
     const ctx = c2d ? c2d.getContext('2d') : null;
     let CW = 0, CH = 0, DPR = 1;
@@ -3542,7 +3739,6 @@ function buildGameRuntime() {
     }
     function step2d(dt) {
       const FLOOR = 240, WALL = 460, snd = [];
-      // 摇杆控制
       for (const o of OBJS) {
         if (o.isPlayer && o.controllable !== false && J.active) {
           const spd = o.moveSpeed ?? 320;
@@ -3613,7 +3809,7 @@ function buildGameRuntime() {
       if (p) { const k = 1 - Math.exp(-5 * dt); cam.x += (p.x - cam.x) * k; cam.y += (p.y - cam.y) * k; }
     }
 
-    // ================= 3D =================
+    /* ============ 3D ============ */
     let T3, renderer, scene, camera, meshes = new Map(), ptGeo, ptPts, MAXP = 2000;
 
     function mat(c) { return new T3.MeshStandardMaterial({ color: new T3.Color(c), roughness: .45, metalness: .12 }); }
@@ -3638,6 +3834,28 @@ function buildGameRuntime() {
       return g;
     }
 
+    function buildText3d(o) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024; canvas.height = 256;
+      const c = canvas.getContext('2d');
+      c.clearRect(0, 0, canvas.width, canvas.height);
+      const size = Math.min(200, o.fontSize || 128);
+      c.font = `bold ${size}px -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif`;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = o.color || '#e8eef8';
+      c.shadowColor = o.color || '#e8eef8';
+      c.shadowBlur = 22;
+      c.fillText(o.text || '文本', canvas.width / 2, canvas.height / 2);
+      const tex = new T3.CanvasTexture(canvas);
+      tex.colorSpace = T3.SRGBColorSpace;
+      tex.needsUpdate = true;
+      const mat = new T3.MeshBasicMaterial({ map: tex, transparent: true, side: T3.DoubleSide, depthWrite: false });
+      const geo = new T3.PlaneGeometry(2 * (canvas.width / canvas.height), 2);
+      const mesh = new T3.Mesh(geo, mat);
+      mesh.userData.isText3d = true;
+      return mesh;
+    }
+
     function build(o) {
       const col = new T3.Color(o.color || '#4a9eff');
       let m;
@@ -3649,6 +3867,7 @@ function buildGameRuntime() {
         case 'torus': m = new T3.Mesh(new T3.TorusGeometry(.5,.2,18,48), mat(col)); break;
         case 'plane': m = new T3.Mesh(new T3.PlaneGeometry(1,1), mat(col)); break;
         case 'creature': m = buildBones(o); break;
+        case 'text3d': m = buildText3d(o); break;
         case 'pointLight': {
           m = new T3.Group();
           m.add(new T3.Mesh(new T3.SphereGeometry(.16,16,12), new T3.MeshBasicMaterial({ color: col })));
@@ -3672,7 +3891,7 @@ function buildGameRuntime() {
         default: m = new T3.Mesh(new T3.BoxGeometry(1,1,1), mat(col));
       }
       m.userData.o = o;
-      if (m.isMesh) { m.castShadow = o.type !== 'plane'; m.receiveShadow = true; m.userData.m = m.material; }
+      if (m.isMesh && o.type !== 'text3d') { m.castShadow = o.type !== 'plane'; m.receiveShadow = true; m.userData.m = m.material; }
       return m;
     }
 
@@ -3757,7 +3976,6 @@ function buildGameRuntime() {
     }
     function step3d(dt) {
       const snd = [];
-      // 摇杆控制 3D 玩家
       if (J.active) {
         const p = OBJS.find(o => o.isPlayer && o.controllable !== false && !o._dead);
         if (p) {
@@ -3886,7 +4104,6 @@ function buildGameRuntime() {
         for (const o of OBJS) if (o.sound && o.sound.enabled && o.sound.trigger === 'start') sfx(o.sound.type, o.sound.volume);
         startEl.classList.add('hide');
         setTimeout(() => { startEl.style.display = 'none'; }, 700);
-        // 显示摇杆（如果有可控制玩家）
         const player = OBJS.find(o => o.isPlayer && o.controllable !== false && o.visible !== false);
         if (J.el && player) J.el.style.display = 'block';
         running = true;
@@ -3922,7 +4139,8 @@ function exportHTML() {
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:100%;height:100%;overflow:hidden;background:#0d1017;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
   #c2d{display:none;position:fixed;inset:0}
   #v3d{display:none;position:fixed;inset:0}
   #v3d canvas{display:block}
@@ -3948,7 +4166,6 @@ function exportHTML() {
   @keyframes pop{0%{transform:scale(.3) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes up{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
   @keyframes breathe{0%,100%{box-shadow:0 10px 34px rgba(42,127,232,.45)}50%{box-shadow:0 10px 54px rgba(46,230,168,.75)}}
-  /* 移动轮盘 */
   #joystick{position:fixed;left:26px;bottom:26px;width:130px;height:130px;
     display:none;z-index:20;touch-action:none;user-select:none}
   #joystick .joy-base{position:absolute;inset:0;border-radius:50%;
@@ -4065,8 +4282,10 @@ window.addEventListener('keyup', e => {
 const ro = new ResizeObserver(() => {
   if (state.mode === '2d') resize2d();
   else resize3d();
+  requestAnimationFrame(updateAddBtnsScrollArrows);
 });
 ro.observe($('#viewport'));
+window.addEventListener('resize', () => requestAnimationFrame(updateAddBtnsScrollArrows));
 
 /* =========================================================
    启动
@@ -4082,6 +4301,7 @@ updateStatus();
 setTimeout(() => {
   $('#intro').classList.add('hide');
   setTimeout(() => { $('#intro').style.display = 'none'; }, 750);
+  requestAnimationFrame(updateAddBtnsScrollArrows);
 }, 1750);
 </script>
 </body>
