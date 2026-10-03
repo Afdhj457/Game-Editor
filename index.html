@@ -86,7 +86,7 @@
   main { flex: 1; display: flex; min-height: 0; }
   aside { background: var(--panel); display: flex; flex-direction: column; flex-shrink: 0; }
   #hierarchy { width: 195px; border-right: 1px solid var(--border); }
-  #inspector { width: 290px; border-left: 1px solid var(--border); }
+  #inspector { width: 300px; border-left: 1px solid var(--border); }
 
   .panel-title {
     padding: 9px 12px; font-size: 11px; font-weight: 800; letter-spacing: 1px;
@@ -108,6 +108,7 @@
   #objList li .badge.f { background: #2ee6a8; color: #06231a; }
   #objList li .badge.e { background: #ff5b5b; color: #fff; }
   #objList li .badge.n { background: #9aa7b8; color: #111; }
+  #objList li .badge.l { background: #ffd93d; color: #332600; }
   #objList li .eye { opacity: .45; font-size: 11px; padding: 0 2px; }
   #objList li .eye:hover { opacity: 1; }
 
@@ -123,6 +124,47 @@
   }
   #playBadge.on { display: block; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+
+  /* ================= 移动轮盘 ================= */
+  #joystick {
+    position: absolute; left: 26px; bottom: 26px;
+    width: 130px; height: 130px;
+    display: none; z-index: 20;
+    touch-action: none;
+    user-select: none;
+  }
+  #joystick.on { display: block; }
+  #joystick .joy-base {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(74,158,255,.10), rgba(20,30,50,.55));
+    border: 2px solid rgba(74,158,255,.55);
+    box-shadow: 0 6px 28px rgba(0,0,0,.55), inset 0 0 28px rgba(74,158,255,.14);
+    backdrop-filter: blur(6px);
+  }
+  #joystick .joy-base::after {
+    content: '';
+    position: absolute; inset: 18px;
+    border-radius: 50%;
+    border: 1px dashed rgba(74,158,255,.22);
+    pointer-events: none;
+  }
+  #joystick .joy-stick {
+    position: absolute; left: 50%; top: 50%;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, #7cc0ff, #2a7fe8 60%, #1a4f9e);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 6px 18px rgba(42,127,232,.65), inset 0 2px 5px rgba(255,255,255,.35);
+    pointer-events: none;
+    transition: transform .04s linear;
+  }
+  #joystick::before {
+    content: 'MOVE';
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 9px; letter-spacing: 2px; font-weight: 800;
+    color: rgba(74,158,255,.7); pointer-events: none;
+  }
 
   #props { overflow-y: auto; flex: 1; padding: 10px; }
   .empty { color: var(--text-dim); text-align: center; padding: 30px 10px; font-size: 12px; }
@@ -160,7 +202,6 @@
   .group-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
   .group-title .btns { display: flex; gap: 4px; }
 
-  /* 手感快速调节面板 */
   .tune-panel {
     background: linear-gradient(135deg, #131c2b, #0f1520);
     border: 1px solid #2a3a55; border-radius: 8px;
@@ -184,14 +225,11 @@
   }
   .tune-presets button:hover { background: #26364d; border-color: #3a4f70; }
 
-  /* 骨骼卡片 */
   .bone-card {
     background: #10141b; border: 1px solid var(--border); border-radius: 7px;
     padding: 8px; margin-bottom: 7px;
   }
-  .bone-card .bhead {
-    display: flex; align-items: center; gap: 5px; margin-bottom: 7px;
-  }
+  .bone-card .bhead { display: flex; align-items: center; gap: 5px; margin-bottom: 7px; }
   .bone-card .bhead .bdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
   .bone-card .bhead input.bname {
     flex: 1; background: transparent; border: none; color: var(--text);
@@ -201,31 +239,50 @@
   .bone-card .bhead input.bname:focus { background: #0d1016; }
   .bone-card .bhead select {
     background: #0d1016; color: var(--text-dim); border: 1px solid var(--border);
-    border-radius: 4px; font-size: 10px; padding: 2px 4px; cursor: pointer;
-    max-width: 82px;
+    border-radius: 4px; font-size: 10px; padding: 2px 4px; cursor: pointer; max-width: 82px;
   }
-  .bone-card .bhead select:focus { outline: none; border-color: var(--accent); }
-
-  .bone-sec {
-    border-top: 1px dashed #1e2735;
-    padding-top: 6px; margin-top: 6px;
-  }
+  .bone-sec { border-top: 1px dashed #1e2735; padding-top: 6px; margin-top: 6px; }
   .bone-sec:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
   .bone-sec .bs-label {
     font-size: 9px; font-weight: 800; letter-spacing: 1px;
     color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;
   }
   .slider-row { margin-bottom: 6px; }
-  .slider-row .sr-head {
-    display: flex; justify-content: space-between;
-    font-size: 10.5px; margin-bottom: 2px;
-  }
+  .slider-row .sr-head { display: flex; justify-content: space-between; font-size: 10.5px; margin-bottom: 2px; }
   .slider-row .sr-head span:first-child { color: var(--text-dim); font-weight: 700; }
   .slider-row .sr-head span:last-child { color: var(--accent); font-family: monospace; font-weight: 800; }
   .slider-row input[type=range] {
     width: 100%; height: 4px; accent-color: var(--accent); cursor: pointer;
     background: #1a2029; border-radius: 2px; outline: none;
   }
+
+  /* ============== 交互逻辑卡片 ============== */
+  .logic-card {
+    background: #10141b; border: 1px solid var(--border); border-radius: 7px;
+    padding: 8px; margin-bottom: 7px;
+    border-left: 3px solid #ffd93d;
+  }
+  .logic-card.disabled { opacity: .5; border-left-color: #555; }
+  .logic-card .lc-head {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  }
+  .logic-card .lc-head .lc-idx {
+    font-size: 10px; font-weight: 800; color: #ffd93d; letter-spacing: 1px;
+  }
+  .logic-card .lc-head .lc-spacer { flex: 1; }
+  .logic-card .lc-row { margin-bottom: 5px; }
+  .logic-card .lc-row label {
+    display: block; font-size: 10px; color: var(--text-dim);
+    font-weight: 700; margin-bottom: 2px;
+  }
+  .logic-card .lc-row select,
+  .logic-card .lc-row input {
+    width: 100%; background: #0d1016; color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 6px; font-size: 11px; font-family: inherit; outline: none;
+  }
+  .logic-card .lc-row select:focus,
+  .logic-card .lc-row input:focus { border-color: #ffd93d; }
 
   .hp-bar { height: 8px; background: #1a1f28; border-radius: 4px; overflow: hidden; margin-top: 4px; }
   .hp-bar i { display: block; height: 100%; transition: width .2s; }
@@ -282,7 +339,7 @@
 <div id="intro">
   <div class="logo">🎮</div>
   <div class="title">GAME EDITOR</div>
-  <div class="sub">CREATURE · BONES · TUNING</div>
+  <div class="sub">JOYSTICK · LOGIC · PLAY</div>
   <div class="bar"><i></i></div>
 </div>
 
@@ -324,6 +381,11 @@
       <canvas id="cv2d"></canvas>
       <div id="vp3d"></div>
       <div id="playBadge">● 运行中</div>
+      <div id="joystick">
+        <div class="joy-base">
+          <div class="joy-stick"></div>
+        </div>
+      </div>
     </div>
 
     <aside id="inspector">
@@ -366,7 +428,6 @@ const r2d = r => r * 180 / Math.PI;
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const FACTION_COLOR = { friend: '#2ee6a8', enemy: '#ff5b5b', neutral: '#9aa7b8' };
-const FACTION_NAME = { friend: '友方', enemy: '敌方', neutral: '中立' };
 const fmt = (v, digits = 2) => {
   const n = Number(v) || 0;
   return n.toFixed(digits).replace(/\.?0+$/, '') || '0';
@@ -444,6 +505,13 @@ function sfxT(key, type, vol) {
 }
 
 /* =========================================================
+   键盘状态（用于逻辑触发器）
+   ========================================================= */
+const keysDown = {};
+window.addEventListener('keydown', e => { keysDown[e.key.toLowerCase()] = true; });
+window.addEventListener('keyup', e => { keysDown[e.key.toLowerCase()] = false; });
+
+/* =========================================================
    默认骨骼
    ========================================================= */
 function defaultBones() {
@@ -471,6 +539,74 @@ const state = {
 };
 const objs = () => state.scenes[state.mode];
 const getSelected = () => objs().find(o => o.id === state.selectedId) || null;
+
+/* =========================================================
+   移动轮盘（虚拟摇杆）
+   ========================================================= */
+const joy = {
+  active: false,
+  pointerId: null,
+  dx: 0,
+  dy: 0,
+  el: null,
+  stickEl: null
+};
+let joyShown = false;
+
+function setupJoystick() {
+  const el = document.getElementById('joystick');
+  if (!el) return;
+  joy.el = el;
+  joy.stickEl = el.querySelector('.joy-stick');
+
+  function updateFromEvent(e) {
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const mr = r.width / 2 - 10;
+    let dx = e.clientX - cx;
+    let dy = e.clientY - cy;
+    const len = Math.hypot(dx, dy);
+    if (len > mr) { dx = dx / len * mr; dy = dy / len * mr; }
+    joy.dx = dx / mr;
+    joy.dy = dy / mr;
+    joy.stickEl.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  }
+
+  el.addEventListener('pointerdown', e => {
+    if (!state.playing) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    joy.pointerId = e.pointerId;
+    joy.active = true;
+    updateFromEvent(e);
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== joy.pointerId || !joy.active) return;
+    e.preventDefault();
+    updateFromEvent(e);
+  });
+  const endJoy = e => {
+    if (e.pointerId !== joy.pointerId) return;
+    joy.active = false;
+    joy.pointerId = null;
+    joy.dx = 0; joy.dy = 0;
+    if (joy.stickEl) joy.stickEl.style.transform = 'translate(-50%, -50%)';
+  };
+  el.addEventListener('pointerup', endJoy);
+  el.addEventListener('pointercancel', endJoy);
+}
+
+function updateJoystickVisibility() {
+  if (!joy.el) return;
+  const player = objs().find(o => o.isPlayer && !o._dead && o.visible !== false && o.controllable !== false);
+  const show = state.playing && !!player;
+  if (show !== joyShown) {
+    joyShown = show;
+    joy.el.classList.toggle('on', show);
+  }
+}
 
 /* =========================================================
    粒子系统
@@ -541,20 +677,27 @@ function seed() {
     { id: uid(), name: '地面', type: 'rect', x: 0, y: 240, w: 700, h: 44, rot: 0,
       color: '#3a4354', radius: 8, visible: true, vx: 0, vy: 0, gravity: 0, bounce: 0,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0],
+      logic: [],
       sound: { enabled: false, type: 'hit', volume: 0.3 } },
     { id: uid(), name: '玩家', type: 'rect', x: -140, y: -120, w: 48, h: 48, rot: 0,
       color: '#4a9eff', radius: 10, visible: true, vx: 0, vy: 0, gravity: 1000, bounce: 0.55,
-      collide: true, isPlayer: true, bindParent: null, bindOffset: [0, 0],
+      collide: true, isPlayer: true, controllable: true, moveSpeed: 320, jumpPower: 560,
+      bindParent: null, bindOffset: [0, 0],
+      logic: [],
       sound: { enabled: true, type: 'hit', volume: 0.25 } },
-    { id: uid(), name: '弹球', type: 'circle', x: 120, y: -220, w: 46, h: 46, rot: 0,
-      color: '#ff6b6b', visible: true, vx: 40, vy: 0, gravity: 1000, bounce: 0.8,
+    { id: uid(), name: '金币', type: 'circle', x: 120, y: -100, w: 34, h: 34, rot: 0,
+      color: '#ffd93d', visible: true, vx: 0, vy: 0, gravity: 900, bounce: 0.7,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0],
+      logic: [
+        { id: 'L1', enabled: true, trigger: 'collide', targetId: '', action: 'sound', sound: 'coin', amount: 0, once: true }
+      ],
       sound: { enabled: true, type: 'beep', volume: 0.18 } },
     { id: uid(), name: '小怪', type: 'creature', x: 260, y: 100, w: 56, h: 96, rot: 0,
       color: '#ff5b5b', visible: true, vx: -30, vy: 0, gravity: 1000, bounce: 0.4,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0],
       hp: 30, maxHp: 30, faction: 'enemy', defense: 4, stateName: '巡逻', attack: 6,
       bones: defaultBones(),
+      logic: [],
       particles: { enabled: true, count: 22, color: '#ff5b5b', speed: 200, life: 0.8, size: 4, gravity: 400, sound: true },
       sound: { enabled: true, type: 'hit', volume: 0.25 } }
   ];
@@ -562,16 +705,20 @@ function seed() {
     { id: uid(), name: '地面', type: 'plane', pos: [0, 0, 0], rot: [-90, 0, 0], scale: [18, 18, 1],
       color: '#2f3646', visible: true, spin: 0, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: false, type: 'hit', volume: 0.3 } },
     { id: uid(), name: '玩家球', type: 'sphere', pos: [0, 5, 0], rot: [0, 0, 0], scale: [1.4, 1.4, 1.4],
       color: '#4a9eff', visible: true, spin: 0, gravity: 20, vx: 0, vy: 0, vz: 0, bounce: 0.72,
-      collide: true, isPlayer: true, bindParent: null, bindOffset: [0, 0, 0],
+      collide: true, isPlayer: true, controllable: true, moveSpeed: 7,
+      bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: true, type: 'hit', volume: 0.25 } },
     { id: uid(), name: '悬浮方块', type: 'box', pos: [3, 1.5, 0], rot: [0, 0, 0], scale: [1.6, 1.6, 1.6],
       color: '#2ee6a8', visible: true, spin: 0.5, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
       path: { enabled: true, points: [[3, 1.5, 0], [3, 3.5, 0], [3, 1.5, -3], [3, 1.5, 0]], speed: 0.6, mode: 'loop' },
       sound: { enabled: false, type: 'coin', volume: 0.3 } },
     { id: uid(), name: '敌怪', type: 'creature', pos: [-4, 0.9, 0], rot: [0, 0, 0], scale: [0.9, 0.9, 0.9],
@@ -579,12 +726,14 @@ function seed() {
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
       hp: 40, maxHp: 40, faction: 'enemy', defense: 6, stateName: '待机', attack: 8,
       bones: defaultBones(),
+      logic: [],
       particles: { enabled: true, count: 28, color: '#ff5b5b', speed: 4, life: 1.0, size: 0.16, gravity: 8, sound: true },
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: true, type: 'hit', volume: 0.25 } },
     { id: uid(), name: '点光源', type: 'pointLight', pos: [0, 6, 5], rot: [0, 0, 0], scale: [1, 1, 1],
       color: '#ffffff', intensity: 30, visible: true, spin: 0, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
       collide: false, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: false, type: 'beep', volume: 0.3 } }
   ];
@@ -689,7 +838,6 @@ function drawObj2d(o) {
   ctx.rotate(d2r(o.rot || 0));
   ctx.fillStyle = o.color || '#4a9eff';
   if (o.type === 'creature') {
-    ctx.rotate(0);
     drawCreatureBones2d(o);
   } else if (o.type === 'rect') {
     rrect(-o.w / 2, -o.h / 2, o.w, o.h, o.radius || 0);
@@ -1251,6 +1399,15 @@ function select(id) {
 let snapshot = null;
 let playBackupCam = null;
 
+function resetLogicState() {
+  const list = state.scenes[state.mode] || [];
+  for (const o of list) {
+    if (o.logic) for (const r of o.logic) { r._fired = false; r._timer = 0; }
+    o._jumping = false;
+    o._dead = false;
+  }
+}
+
 function play() {
   if (state.playing) return;
   ensureAudio();
@@ -1258,6 +1415,7 @@ function play() {
   playBackupCam = { ...state.cam2d };
   state.playing = true;
   Particles.clear();
+  resetLogicState();
 
   const list = state.scenes[state.mode];
   for (const o of list) {
@@ -1272,7 +1430,8 @@ function play() {
     const p = state.scenes['2d'].find(o => o.isPlayer);
     if (p) { state.cam2d.x = p.x; state.cam2d.y = p.y; }
   }
-  setHint('▶ 运行中 · 相机自动跟随玩家');
+  updateJoystickVisibility();
+  setHint('▶ 运行中 · 拖动轮盘移动玩家');
 }
 
 function stop() {
@@ -1281,6 +1440,10 @@ function stop() {
   if (snapshot) { state.scenes = snapshot; snapshot = null; }
   if (playBackupCam) { state.cam2d = playBackupCam; playBackupCam = null; }
   Particles.clear();
+  joy.active = false;
+  joy.pointerId = null;
+  joy.dx = 0; joy.dy = 0;
+  if (joy.stickEl) joy.stickEl.style.transform = 'translate(-50%, -50%)';
   $('#playBtn').textContent = '▶ 播放';
   $('#playBadge').classList.remove('on');
   if (three3d) {
@@ -1288,6 +1451,7 @@ function stop() {
     syncScene3d();
     select3d(state.selectedId);
   }
+  updateJoystickVisibility();
   renderHierarchy();
   renderInspector();
   updateStatus();
@@ -1315,10 +1479,152 @@ function destroyObj(o) {
   }
 }
 
+/* ---------- 碰撞检测工具 ---------- */
+function rectsOverlap2d(a, b) {
+  const ahw = Math.abs(a.w) / 2, ahh = Math.abs(a.h) / 2;
+  const bhw = Math.abs(b.w) / 2, bhh = Math.abs(b.h) / 2;
+  return Math.abs(b.x - a.x) < ahw + bhw && Math.abs(b.y - a.y) < ahh + bhh;
+}
+function boxesOverlap3d(a, b) {
+  const A = bbox3(a), B = bbox3(b);
+  return A.min[0] < B.max[0] && A.max[0] > B.min[0] &&
+         A.min[1] < B.max[1] && A.max[1] > B.min[1] &&
+         A.min[2] < B.max[2] && A.max[2] > B.min[2];
+}
+function bbox3(o) {
+  const s = o.scale, p = o.pos;
+  return {
+    min: [p[0] - s[0] / 2, p[1] - s[1] / 2, p[2] - s[2] / 2],
+    max: [p[0] + s[0] / 2, p[1] + s[1] / 2, p[2] + s[2] / 2]
+  };
+}
+
+/* =========================================================
+   交互逻辑系统
+   ========================================================= */
+function executeAction(owner, target, rule) {
+  const action = rule.action || 'sound';
+  const amount = rule.amount || 0;
+  const snd = rule.sound || 'hit';
+
+  switch (action) {
+    case 'destroy_self': destroyObj(owner); break;
+    case 'destroy_target': if (target) destroyObj(target); break;
+    case 'damage_self': damage(owner, amount || 5); break;
+    case 'damage_target': if (target) damage(target, amount || 5); break;
+    case 'heal_self':
+      owner.hp = Math.min(owner.maxHp || 100, (owner.hp || 0) + (amount || 10));
+      break;
+    case 'heal_target':
+      if (target) target.hp = Math.min(target.maxHp || 100, (target.hp || 0) + (amount || 10));
+      break;
+    case 'push_target':
+      if (target) {
+        if (state.mode === '2d') {
+          const dx = target.x - owner.x, dy = target.y - owner.y;
+          const len = Math.hypot(dx, dy) || 1;
+          target.vx = (dx / len) * (amount || 300);
+          target.vy = (dy / len) * (amount || 300) - 120;
+        } else {
+          const dx = target.pos[0] - owner.pos[0];
+          const dz = target.pos[2] - owner.pos[2];
+          const len = Math.hypot(dx, dz) || 1;
+          target.vx = (dx / len) * (amount || 6);
+          target.vz = (dz / len) * (amount || 6);
+          target.vy = 3;
+        }
+      }
+      break;
+    case 'teleport_self':
+      if (target) {
+        if (state.mode === '2d') { owner.x = target.x; owner.y = target.y - 60; }
+        else { owner.pos = [target.pos[0], target.pos[1] + 2, target.pos[2]]; }
+      }
+      break;
+    case 'particle':
+      if (state.mode === '2d') {
+        Particles.spawn2d(owner.x, owner.y, { count: 15, color: owner.color || '#ffd93d', speed: 220, life: 0.7 });
+      } else {
+        Particles.spawn3d(owner.pos, { count: 18, color: owner.color || '#ffd93d', speed: 3.5, life: 0.8 });
+      }
+      break;
+    case 'sound': default:
+      sfx(snd, 0.32);
+      break;
+  }
+}
+
+function checkLogic(dt) {
+  if (!state.playing) return;
+  const arr = state.scenes[state.mode];
+
+  for (const o of arr) {
+    if (o._dead || o.visible === false) continue;
+    if (!o.logic || !o.logic.length) continue;
+
+    for (const rule of o.logic) {
+      if (rule.enabled === false) continue;
+      if (rule.once && rule._fired) continue;
+
+      let fired = false;
+
+      if (rule.trigger === 'collide') {
+        const target = rule.targetId ? arr.find(x => x.id === rule.targetId) : null;
+        const candidates = target ? [target] : arr;
+        for (const t of candidates) {
+          if (!t || t === o || t._dead || t.visible === false) continue;
+          let hit;
+          if (state.mode === '2d') hit = rectsOverlap2d(o, t);
+          else hit = boxesOverlap3d(o, t);
+          if (hit) {
+            executeAction(o, t, rule);
+            fired = true;
+            break;
+          }
+        }
+      } else if (rule.trigger === 'keypress') {
+        const k = (rule.key || 'e').toLowerCase();
+        if (keysDown[k]) {
+          executeAction(o, null, rule);
+          fired = true;
+        }
+      } else if (rule.trigger === 'interval') {
+        rule._timer = (rule._timer || 0) + dt;
+        if (rule._timer >= (rule.interval || 1)) {
+          rule._timer = 0;
+          executeAction(o, null, rule);
+          fired = true;
+        }
+      }
+
+      if (fired && rule.once) rule._fired = true;
+    }
+  }
+}
+
+/* ---------- 2D 物理 ---------- */
 function step2d(dt) {
   const arr = state.scenes['2d'];
   const FLOOR = 240, WALL = 460;
   const snd = [];
+
+  // 摇杆控制玩家
+  for (const o of arr) {
+    if (o.isPlayer && o.controllable !== false && joy.active) {
+      const spd = o.moveSpeed ?? 320;
+      if (Math.abs(joy.dx) > 0.08) o.vx = joy.dx * spd;
+      if (!o.gravity) {
+        o.vy = joy.dy * spd;
+      } else if (joy.dy < -0.55) {
+        if (!o._jumping) {
+          o.vy = -(o.jumpPower ?? 560);
+          o._jumping = true;
+          if (o.sound?.enabled) sfx('jump', o.sound.volume);
+        }
+      }
+    }
+    if (o.isPlayer && (!joy.active || joy.dy > -0.35)) o._jumping = false;
+  }
 
   for (const o of arr) {
     if (o.visible === false || o._dead) continue;
@@ -1404,17 +1710,30 @@ function step2d(dt) {
   }
 }
 
-function bbox3(o) {
-  const s = o.scale, p = o.pos;
-  return {
-    min: [p[0] - s[0] / 2, p[1] - s[1] / 2, p[2] - s[2] / 2],
-    max: [p[0] + s[0] / 2, p[1] + s[1] / 2, p[2] + s[2] / 2]
-  };
-}
-
+/* ---------- 3D 物理 ---------- */
 function step3d(dt) {
   const arr = state.scenes['3d'];
   const snd = [];
+
+  // 摇杆控制 3D 玩家（相对相机）
+  if (joy.active && three3d) {
+    const p = arr.find(o => o.isPlayer && o.controllable !== false && !o._dead);
+    if (p) {
+      const T = three3d.THREE;
+      const camDir = new T.Vector3();
+      three3d.camera.getWorldDirection(camDir);
+      camDir.y = 0;
+      if (camDir.lengthSq() > 0.001) camDir.normalize();
+      const camRight = new T.Vector3().crossVectors(camDir, new T.Vector3(0, 1, 0)).normalize();
+      const mv = new T.Vector3();
+      mv.addScaledVector(camDir, -joy.dy);
+      mv.addScaledVector(camRight, joy.dx);
+      if (mv.lengthSq() > 0.001) mv.normalize();
+      const spd = p.moveSpeed ?? 7;
+      p.pos[0] += mv.x * spd * dt;
+      p.pos[2] += mv.z * spd * dt;
+    }
+  }
 
   for (const o of arr) {
     if (o.visible === false || o._dead) continue;
@@ -1531,6 +1850,7 @@ function step3d(dt) {
 function stepPhysics(dt) {
   if (state.mode === '2d') step2d(dt);
   else step3d(dt);
+  checkLogic(dt);
   Particles.update(dt);
 }
 
@@ -1546,8 +1866,12 @@ function loop(t) {
   const dt = Math.min((t - lastT) / 1000, 0.05);
   lastT = t;
 
-  if (state.playing) stepPhysics(dt);
-  else if (Particles.list.length) Particles.update(dt);
+  if (state.playing) {
+    stepPhysics(dt);
+    updateJoystickVisibility();
+  } else if (Particles.list.length) {
+    Particles.update(dt);
+  }
 
   if (state.mode === '2d') {
     draw2d();
@@ -1586,6 +1910,7 @@ function renderHierarchy() {
     if (o.id === state.selectedId) li.className = 'sel';
     let badge = '';
     if (o.isPlayer) badge += '<span class="badge p">P</span>';
+    if (o.logic && o.logic.length) badge += `<span class="badge l">${o.logic.length}</span>`;
     if (o.type === 'creature') {
       badge += `<span class="badge ${o.faction === 'enemy' ? 'e' : o.faction === 'friend' ? 'f' : 'n'}">${o.faction === 'enemy' ? '敌' : o.faction === 'friend' ? '友' : '中'}</span>`;
     }
@@ -1736,21 +2061,18 @@ function renderPlayerTuning(o) {
   const is2d = state.mode === '2d';
 
   const title = el('div', 'tp-title');
-  title.innerHTML = `<span>🎮 手感快速调节</span><span>${o.name}</span>`;
+  title.innerHTML = `<span>🎮 手感快速调节</span><span>${esc(o.name)}</span>`;
   wrap.appendChild(title);
 
-  // 重力
   const gMax = is2d ? 3000 : 60;
   const gStep = is2d ? 25 : 0.5;
   const gRow = el('div', 'tune-slider');
-  gRow.innerHTML = `
-    <div class="ts-head"><span>重力 Gravity</span><b id="tuneGrav">${fmt(o.gravity || 0, 1)}</b></div>
-  `;
+  gRow.innerHTML = `<div class="ts-head"><span>重力 Gravity</span><b>${fmt(o.gravity || 0, 1)}</b></div>`;
   const gInp = document.createElement('input');
   gInp.type = 'range'; gInp.min = 0; gInp.max = gMax; gInp.step = gStep;
   gInp.value = clamp(o.gravity || 0, 0, gMax);
   gInp.style.cssText = 'width:100%;accent-color:#4a9eff;cursor:pointer;';
-  const gVal = gRow.querySelector('#tuneGrav');
+  const gVal = gRow.querySelector('b');
   gInp.addEventListener('input', () => {
     const v = parseFloat(gInp.value);
     o.gravity = v;
@@ -1759,16 +2081,13 @@ function renderPlayerTuning(o) {
   gRow.appendChild(gInp);
   wrap.appendChild(gRow);
 
-  // 弹性
   const bRow = el('div', 'tune-slider');
-  bRow.innerHTML = `
-    <div class="ts-head"><span>弹性 Bounce</span><b id="tuneBnc">${fmt(o.bounce ?? 0.6, 2)}</b></div>
-  `;
+  bRow.innerHTML = `<div class="ts-head"><span>弹性 Bounce</span><b>${fmt(o.bounce ?? 0.6, 2)}</b></div>`;
   const bInp = document.createElement('input');
   bInp.type = 'range'; bInp.min = 0; bInp.max = 1.5; bInp.step = 0.02;
   bInp.value = clamp(o.bounce ?? 0.6, 0, 1.5);
   bInp.style.cssText = 'width:100%;accent-color:#4a9eff;cursor:pointer;';
-  const bVal = bRow.querySelector('#tuneBnc');
+  const bVal = bRow.querySelector('b');
   bInp.addEventListener('input', () => {
     const v = parseFloat(bInp.value);
     o.bounce = v;
@@ -1777,10 +2096,27 @@ function renderPlayerTuning(o) {
   bRow.appendChild(bInp);
   wrap.appendChild(bRow);
 
+  // 移动速度
+  const sRow = el('div', 'tune-slider');
+  const sMax = is2d ? 800 : 20;
+  const sStep = is2d ? 10 : 0.5;
+  sRow.innerHTML = `<div class="ts-head"><span>移动速度 Speed</span><b>${fmt(o.moveSpeed ?? (is2d ? 320 : 7), 1)}</b></div>`;
+  const sInp = document.createElement('input');
+  sInp.type = 'range'; sInp.min = 20; sInp.max = sMax; sInp.step = sStep;
+  sInp.value = clamp(o.moveSpeed ?? (is2d ? 320 : 7), 20, sMax);
+  sInp.style.cssText = 'width:100%;accent-color:#2ee6a8;cursor:pointer;';
+  const sVal = sRow.querySelector('b');
+  sInp.addEventListener('input', () => {
+    const v = parseFloat(sInp.value);
+    o.moveSpeed = v;
+    sVal.textContent = fmt(v, 1);
+  });
+  sRow.appendChild(sInp);
+  wrap.appendChild(sRow);
+
   // 重力预设
   const gPre = el('div', 'tune-presets');
-  const gLabel = el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重力预设</span>');
-  gPre.appendChild(gLabel);
+  gPre.appendChild(el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重力预设</span>'));
   const gravPresets = is2d
     ? [['地球', 1000], ['月球', 166], ['木星', 2400], ['太空', 0]]
     : [['地球', 20], ['月球', 3.3], ['木星', 50], ['太空', 0]];
@@ -1796,10 +2132,8 @@ function renderPlayerTuning(o) {
   }
   wrap.appendChild(gPre);
 
-  // 弹性预设
   const bPre = el('div', 'tune-presets');
-  const bLabel = el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">弹性预设</span>');
-  bPre.appendChild(bLabel);
+  bPre.appendChild(el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">弹性预设</span>'));
   for (const [name, val] of [['无弹', 0], ['低弹', 0.25], ['标准', 0.55], ['高弹', 0.8], ['超弹', 1.1]]) {
     const b = el('button', null, name);
     b.title = '弹性 ' + val;
@@ -1812,16 +2146,19 @@ function renderPlayerTuning(o) {
   }
   wrap.appendChild(bPre);
 
-  // 重置按钮
-  const resetRow = el('div', 'tune-presets', '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重置</span>');
+  const resetRow = el('div', 'tune-presets');
+  resetRow.appendChild(el('div', null, '<span style="font-size:10px;color:#7c8698;font-weight:800;letter-spacing:1px">重置</span>'));
   const resetBtn = el('button', null, '🔄 恢复默认');
   resetBtn.addEventListener('click', () => {
     o.gravity = is2d ? 1000 : 20;
     o.bounce = is2d ? 0.55 : 0.72;
+    o.moveSpeed = is2d ? 320 : 7;
     gInp.value = Math.min(o.gravity, gMax);
     gVal.textContent = fmt(o.gravity, 1);
     bInp.value = o.bounce;
     bVal.textContent = fmt(o.bounce, 2);
+    sInp.value = o.moveSpeed;
+    sVal.textContent = fmt(o.moveSpeed, 1);
   });
   resetRow.appendChild(resetBtn);
   wrap.appendChild(resetRow);
@@ -1830,7 +2167,7 @@ function renderPlayerTuning(o) {
 }
 
 /* =========================================================
-   ★ 骨骼编辑器（滑块微调版）
+   ★ 骨骼编辑器
    ========================================================= */
 function boneSlider(label, value, min, max, step, onChange, suffix = '') {
   const row = el('div', 'slider-row');
@@ -1864,7 +2201,6 @@ function renderBonesEditor(o) {
   const bones = o.bones;
   const is2d = state.mode === '2d';
 
-  // 骨骼总览小标签
   const tips = el('div');
   tips.style.cssText = 'font-size:10px;color:#7c8698;margin-bottom:8px;line-height:1.5;';
   tips.innerHTML = `共 ${bones.length} 个骨骼 · 拖动下方滑块微调偏移与旋转`;
@@ -1874,7 +2210,6 @@ function renderBonesEditor(o) {
     const b = bones[i];
     const card = el('div', 'bone-card');
 
-    // 头部：颜色 + 名称 + 父级 + 删除
     const head = el('div', 'bhead');
     const dot = el('span', 'bdot');
     dot.style.background = b.color || o.color;
@@ -1920,7 +2255,6 @@ function renderBonesEditor(o) {
     head.append(dot, nameInput, parentSel, delBtn);
     card.appendChild(head);
 
-    // 颜色
     const colorSec = el('div', 'bone-sec');
     const colorRow = el('div');
     colorRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
@@ -1934,12 +2268,10 @@ function renderBonesEditor(o) {
       o._boneVersion = (o._boneVersion || 0) + 1;
       if (!is2d) syncScene3d();
     });
-    const colorLbl = el('span', null, '<span style="font-size:10px;color:#7c8698;font-weight:800">骨骼颜色</span>');
-    colorRow.append(colorInp, colorLbl);
+    colorRow.append(colorInp, el('span', null, '<span style="font-size:10px;color:#7c8698;font-weight:800">骨骼颜色</span>'));
     colorSec.appendChild(colorRow);
     card.appendChild(colorSec);
 
-    // 偏移
     const posSec = el('div', 'bone-sec');
     posSec.appendChild(el('div', 'bs-label', '偏移 Offset'));
     posSec.appendChild(boneSlider('X 横向', b.ox || 0, -160, 160, 1, v => {
@@ -1961,7 +2293,6 @@ function renderBonesEditor(o) {
     }
     card.appendChild(posSec);
 
-    // 旋转
     const rotSec = el('div', 'bone-sec');
     rotSec.appendChild(el('div', 'bs-label', '旋转 Rotation'));
     if (is2d) {
@@ -1970,25 +2301,16 @@ function renderBonesEditor(o) {
         o._boneVersion = (o._boneVersion || 0) + 1;
       }, '°'));
     } else {
-      rotSec.appendChild(boneSlider('RX', b.rx || 0, -180, 180, 1, v => {
-        b.rx = v;
-        o._boneVersion = (o._boneVersion || 0) + 1;
-        syncScene3d();
-      }, '°'));
-      rotSec.appendChild(boneSlider('RY', b.ry || 0, -180, 180, 1, v => {
-        b.ry = v;
-        o._boneVersion = (o._boneVersion || 0) + 1;
-        syncScene3d();
-      }, '°'));
-      rotSec.appendChild(boneSlider('RZ', b.rz || 0, -180, 180, 1, v => {
-        b.rz = v;
-        o._boneVersion = (o._boneVersion || 0) + 1;
-        syncScene3d();
-      }, '°'));
+      for (const k of ['rx', 'ry', 'rz']) {
+        rotSec.appendChild(boneSlider(k.toUpperCase(), b[k] || 0, -180, 180, 1, v => {
+          b[k] = v;
+          o._boneVersion = (o._boneVersion || 0) + 1;
+          syncScene3d();
+        }, '°'));
+      }
     }
     card.appendChild(rotSec);
 
-    // 尺寸
     const szSec = el('div', 'bone-sec');
     szSec.appendChild(el('div', 'bs-label', '尺寸 Size'));
     const szMax = is2d ? 120 : 1.5;
@@ -2051,6 +2373,195 @@ function renderParticlesEditor(o) {
 }
 
 /* =========================================================
+   ★ 交互逻辑编辑器
+   ========================================================= */
+function renderLogicEditor(o) {
+  const wrap = el('div');
+  if (!o.logic) o.logic = [];
+  const others = objs().filter(x => x.id !== o.id);
+
+  for (let i = 0; i < o.logic.length; i++) {
+    const rule = o.logic[i];
+    const card = el('div', 'logic-card' + (rule.enabled === false ? ' disabled' : ''));
+
+    const head = el('div', 'lc-head');
+    head.appendChild(el('span', 'lc-idx', '规则 #' + (i + 1)));
+    head.appendChild(el('span', 'lc-spacer'));
+    // 启用复选框
+    const enChk = document.createElement('input');
+    enChk.type = 'checkbox'; enChk.checked = rule.enabled !== false;
+    enChk.style.cssText = 'width:14px;height:14px;accent-color:#ffd93d;cursor:pointer;';
+    enChk.addEventListener('change', () => {
+      rule.enabled = enChk.checked;
+      renderInspector();
+    });
+    head.appendChild(enChk);
+    // 删除按钮
+    const delBtn = el('button', 'tiny danger', '×');
+    delBtn.addEventListener('click', () => {
+      o.logic.splice(i, 1);
+      renderInspector();
+      renderHierarchy();
+    });
+    head.appendChild(delBtn);
+    card.appendChild(head);
+
+    // 触发方式
+    const trigRow = el('div', 'lc-row');
+    trigRow.appendChild(el('label', null, '触发方式'));
+    const trigSel = document.createElement('select');
+    for (const [v, n] of [['collide', '碰撞时'], ['keypress', '按键时'], ['interval', '定时循环']]) {
+      const op = document.createElement('option');
+      op.value = v; op.textContent = n;
+      if (rule.trigger === v) op.selected = true;
+      trigSel.appendChild(op);
+    }
+    trigSel.addEventListener('change', () => {
+      rule.trigger = trigSel.value;
+      renderInspector();
+    });
+    trigRow.appendChild(trigSel);
+    card.appendChild(trigRow);
+
+    // 目标对象（仅碰撞时）
+    if (rule.trigger === 'collide') {
+      const tRow = el('div', 'lc-row');
+      tRow.appendChild(el('label', null, '碰撞目标（留空 = 任意对象）'));
+      const tSel = document.createElement('select');
+      const op0 = document.createElement('option');
+      op0.value = ''; op0.textContent = '任意对象';
+      tSel.appendChild(op0);
+      for (const t of others) {
+        const op = document.createElement('option');
+        op.value = t.id; op.textContent = t.name;
+        if (rule.targetId === t.id) op.selected = true;
+        tSel.appendChild(op);
+      }
+      tSel.addEventListener('change', () => { rule.targetId = tSel.value; });
+      tRow.appendChild(tSel);
+      card.appendChild(tRow);
+    }
+
+    // 按键（仅按键时）
+    if (rule.trigger === 'keypress') {
+      const kRow = el('div', 'lc-row');
+      kRow.appendChild(el('label', null, '按键'));
+      const kInp = document.createElement('input');
+      kInp.type = 'text';
+      kInp.value = rule.key || 'e';
+      kInp.maxLength = 8;
+      kInp.addEventListener('input', () => { rule.key = kInp.value; });
+      kRow.appendChild(kInp);
+      card.appendChild(kRow);
+    }
+
+    // 间隔（仅定时）
+    if (rule.trigger === 'interval') {
+      const iRow = el('div', 'lc-row');
+      iRow.appendChild(el('label', null, '间隔（秒）'));
+      const iInp = document.createElement('input');
+      iInp.type = 'number';
+      iInp.step = 0.1; iInp.min = 0.05;
+      iInp.value = rule.interval ?? 2;
+      iInp.addEventListener('input', () => { rule.interval = Math.max(0.05, parseFloat(iInp.value) || 1); });
+      iRow.appendChild(iInp);
+      card.appendChild(iRow);
+    }
+
+    // 动作
+    const aRow = el('div', 'lc-row');
+    aRow.appendChild(el('label', null, '执行动作'));
+    const aSel = document.createElement('select');
+    for (const [v, n] of [
+      ['destroy_target', '销毁目标'],
+      ['destroy_self', '销毁自身'],
+      ['damage_target', '伤害目标'],
+      ['damage_self', '伤害自身'],
+      ['heal_self', '治疗自身'],
+      ['heal_target', '治疗目标'],
+      ['push_target', '击退目标'],
+      ['teleport_self', '传送到目标'],
+      ['particle', '生成粒子'],
+      ['sound', '播放音效']
+    ]) {
+      const op = document.createElement('option');
+      op.value = v; op.textContent = n;
+      if (rule.action === v) op.selected = true;
+      aSel.appendChild(op);
+    }
+    aSel.addEventListener('change', () => {
+      rule.action = aSel.value;
+      renderInspector();
+    });
+    aRow.appendChild(aSel);
+    card.appendChild(aRow);
+
+    // 数值
+    if (['damage_target', 'damage_self', 'heal_self', 'heal_target', 'push_target'].includes(rule.action)) {
+      const nRow = el('div', 'lc-row');
+      nRow.appendChild(el('label', null, '数值'));
+      const nInp = document.createElement('input');
+      nInp.type = 'number';
+      nInp.value = rule.amount ?? 10;
+      nInp.addEventListener('input', () => { rule.amount = parseFloat(nInp.value) || 0; });
+      nRow.appendChild(nInp);
+      card.appendChild(nRow);
+    }
+
+    // 音效
+    if (rule.action === 'sound') {
+      const sRow = el('div', 'lc-row');
+      sRow.appendChild(el('label', null, '音效'));
+      const sSel = document.createElement('select');
+      for (const [v, n] of [['hit', '撞击'], ['jump', '跳跃'], ['coin', '金币'], ['laser', '激光'], ['explosion', '爆炸'], ['beep', '哔'], ['powerup', '强化']]) {
+        const op = document.createElement('option');
+        op.value = v; op.textContent = n;
+        if (rule.sound === v) op.selected = true;
+        sSel.appendChild(op);
+      }
+      sSel.addEventListener('change', () => { rule.sound = sSel.value; });
+      sRow.appendChild(sSel);
+      card.appendChild(sRow);
+    }
+
+    // 仅一次
+    const oRow = el('div', 'lc-row');
+    const oChk = document.createElement('input');
+    oChk.type = 'checkbox'; oChk.checked = rule.once !== false;
+    oChk.style.cssText = 'width:14px;height:14px;accent-color:#ffd93d;cursor:pointer;vertical-align:middle;';
+    const oLbl = el('label', null, '仅触发一次');
+    oLbl.style.cssText = 'display:inline;margin-left:6px;font-size:11px;color:#d5dae3;cursor:pointer;';
+    oLbl.addEventListener('click', () => { oChk.checked = !oChk.checked; rule.once = oChk.checked; });
+    oChk.addEventListener('change', () => { rule.once = oChk.checked; });
+    oRow.append(oChk, oLbl);
+    card.appendChild(oRow);
+
+    wrap.appendChild(card);
+  }
+
+  const addBtn = el('button', 'mini', '+ 添加交互规则');
+  addBtn.style.cssText = 'width:100%;border-color:#ffd93d;color:#ffd93d;';
+  addBtn.addEventListener('click', () => {
+    o.logic.push({
+      id: 'L' + uid(),
+      enabled: true,
+      trigger: 'collide',
+      targetId: '',
+      key: 'e',
+      interval: 2,
+      action: 'sound',
+      amount: 10,
+      sound: 'coin',
+      once: true
+    });
+    renderInspector();
+    renderHierarchy();
+  });
+  wrap.appendChild(addBtn);
+  return wrap;
+}
+
+/* =========================================================
    主渲染
    ========================================================= */
 function renderInspector() {
@@ -2064,7 +2575,6 @@ function renderInspector() {
 
   p.appendChild(rowText('名称', o.name, v => { o.name = v; renderHierarchy(); }));
 
-  /* ★ 玩家快速调节面板 —— 放在最前面 */
   if (o.isPlayer) {
     p.appendChild(renderPlayerTuning(o));
   }
@@ -2103,21 +2613,13 @@ function renderInspector() {
 
       p.appendChild(groupTitle('生物属性'));
       const hpPct = clamp(o.hp / o.maxHp, 0, 1);
-      const hpBar = el('div', 'hp-bar', `<i style="width:${hpPct * 100}%;background:${FACTION_COLOR[o.faction]}"></i>`);
-      p.appendChild(hpBar);
+      p.appendChild(el('div', 'hp-bar', `<i style="width:${hpPct * 100}%;background:${FACTION_COLOR[o.faction]}"></i>`));
       p.appendChild(rowNum('当前 HP', o.hp, v => { o.hp = Math.min(o.maxHp, Math.max(0, v)); renderInspector(); }, 1, 0));
       p.appendChild(rowNum('最大 HP', o.maxHp, v => { o.maxHp = Math.max(1, v); if (o.hp > o.maxHp) o.hp = o.maxHp; renderInspector(); }, 1, 1));
       p.appendChild(rowSelect('阵营', o.faction, [['friend', '友方'], ['enemy', '敌方'], ['neutral', '中立']], v => { o.faction = v; renderHierarchy(); renderInspector(); }));
       p.appendChild(rowText('状态', o.stateName, v => { o.stateName = v; }));
       p.appendChild(rowNum('防御值', o.defense, v => { o.defense = Math.max(0, v); }, 1, 0));
       p.appendChild(rowNum('攻击力', o.attack, v => { o.attack = Math.max(0, v); }, 1, 0));
-
-      const dmgRow = el('div', 'field');
-      const dBtn = el('button', 'mini danger', '⚔ 造成 10 点伤害（测试）');
-      dBtn.style.width = '100%';
-      dBtn.addEventListener('click', () => { ensureAudio(); damage(o, 10); renderInspector(); });
-      dmgRow.appendChild(dBtn);
-      p.appendChild(dmgRow);
 
       p.appendChild(groupTitle('骨骼绑定', [{
         text: '+ 加骨骼', onClick: () => {
@@ -2140,21 +2642,31 @@ function renderInspector() {
         }
       }]));
       p.appendChild(renderBonesEditor(o));
-
-      p.appendChild(groupTitle('粒子破坏与效果'));
-      p.appendChild(renderParticlesEditor(o));
-    } else {
-      p.appendChild(groupTitle('粒子效果（被摧毁时）'));
-      p.appendChild(renderParticlesEditor(o));
     }
 
-    p.appendChild(groupTitle('角色'));
+    p.appendChild(groupTitle('粒子破坏与效果'));
+    p.appendChild(renderParticlesEditor(o));
+
+    // ★ 玩家控制
+    p.appendChild(groupTitle('玩家控制'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
       o.isPlayer = v;
+      if (v) { o.controllable = o.controllable !== false; o.moveSpeed = o.moveSpeed ?? 320; }
       renderHierarchy();
       renderInspector();
     }));
+    if (o.isPlayer) {
+      p.appendChild(rowCheck('可拖动轮盘控制', o.controllable !== false, v => { o.controllable = v; }));
+      p.appendChild(rowNum('移动速度', o.moveSpeed ?? 320, v => { o.moveSpeed = Math.max(20, v); }, 10, 20));
+      if (o.gravity) {
+        p.appendChild(rowNum('跳跃力度', o.jumpPower ?? 560, v => { o.jumpPower = Math.max(100, v); }, 20, 100));
+      }
+    }
+
+    // ★ 交互逻辑
+    p.appendChild(groupTitle('交互逻辑'));
+    p.appendChild(renderLogicEditor(o));
 
     p.appendChild(groupTitle('对象绑定'));
     const otherObjs = objs().filter(x => x.id !== o.id);
@@ -2183,21 +2695,6 @@ function renderInspector() {
         { name: 'X', value: o.bindOffset?.[0] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0]; o.bindOffset[0] = v; } },
         { name: 'Y', value: o.bindOffset?.[1] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0]; o.bindOffset[1] = v; } }
       ]));
-      const copyBindBtn = el('button', 'mini', '⧉ 复制并绑定到同一父级');
-      copyBindBtn.style.width = '100%';
-      copyBindBtn.addEventListener('click', () => {
-        const c = JSON.parse(JSON.stringify(o));
-        c.id = uid();
-        c.name = o.name + ' 副本';
-        c.bindParent = o.bindParent;
-        c.bindOffset = (o.bindOffset || [0, 0]).slice();
-        c.bindOffset[0] += 20;
-        objs().push(c);
-        if (state.mode === '3d') syncScene3d();
-        select(c.id);
-        toast('已复制并绑定到同一父级');
-      });
-      p.appendChild(copyBindBtn);
     }
 
     p.appendChild(groupTitle('物理'));
@@ -2250,21 +2747,13 @@ function renderInspector() {
 
       p.appendChild(groupTitle('生物属性'));
       const hpPct = clamp(o.hp / o.maxHp, 0, 1);
-      const hpBar = el('div', 'hp-bar', `<i style="width:${hpPct * 100}%;background:${FACTION_COLOR[o.faction]}"></i>`);
-      p.appendChild(hpBar);
+      p.appendChild(el('div', 'hp-bar', `<i style="width:${hpPct * 100}%;background:${FACTION_COLOR[o.faction]}"></i>`));
       p.appendChild(rowNum('当前 HP', o.hp, v => { o.hp = Math.min(o.maxHp, Math.max(0, v)); renderInspector(); }, 1, 0));
       p.appendChild(rowNum('最大 HP', o.maxHp, v => { o.maxHp = Math.max(1, v); if (o.hp > o.maxHp) o.hp = o.maxHp; renderInspector(); }, 1, 1));
       p.appendChild(rowSelect('阵营', o.faction, [['friend', '友方'], ['enemy', '敌方'], ['neutral', '中立']], v => { o.faction = v; renderHierarchy(); renderInspector(); }));
       p.appendChild(rowText('状态', o.stateName, v => { o.stateName = v; }));
       p.appendChild(rowNum('防御值', o.defense, v => { o.defense = Math.max(0, v); }, 1, 0));
       p.appendChild(rowNum('攻击力', o.attack, v => { o.attack = Math.max(0, v); }, 1, 0));
-
-      const dmgRow = el('div', 'field');
-      const dBtn = el('button', 'mini danger', '⚔ 造成 12 点伤害（测试）');
-      dBtn.style.width = '100%';
-      dBtn.addEventListener('click', () => { ensureAudio(); damage(o, 12); renderInspector(); });
-      dmgRow.appendChild(dBtn);
-      p.appendChild(dmgRow);
 
       p.appendChild(groupTitle('骨骼绑定', [{
         text: '+ 加骨骼', onClick: () => {
@@ -2287,21 +2776,28 @@ function renderInspector() {
         }
       }]));
       p.appendChild(renderBonesEditor(o));
-
-      p.appendChild(groupTitle('粒子破坏与效果'));
-      p.appendChild(renderParticlesEditor(o));
-    } else {
-      p.appendChild(groupTitle('粒子效果（被摧毁时）'));
-      p.appendChild(renderParticlesEditor(o));
     }
 
-    p.appendChild(groupTitle('角色'));
+    p.appendChild(groupTitle('粒子破坏与效果'));
+    p.appendChild(renderParticlesEditor(o));
+
+    // ★ 玩家控制
+    p.appendChild(groupTitle('玩家控制'));
     p.appendChild(rowCheck('设为玩家角色（镜头跟随）', o.isPlayer, v => {
       if (v) objs().forEach(x => x.isPlayer = false);
       o.isPlayer = v;
+      if (v) { o.controllable = o.controllable !== false; o.moveSpeed = o.moveSpeed ?? 7; }
       renderHierarchy();
       renderInspector();
     }));
+    if (o.isPlayer) {
+      p.appendChild(rowCheck('可拖动轮盘控制', o.controllable !== false, v => { o.controllable = v; }));
+      p.appendChild(rowNum('移动速度', o.moveSpeed ?? 7, v => { o.moveSpeed = Math.max(0.5, v); }, 0.5, 0.5));
+    }
+
+    // ★ 交互逻辑
+    p.appendChild(groupTitle('交互逻辑'));
+    p.appendChild(renderLogicEditor(o));
 
     p.appendChild(groupTitle('对象绑定'));
     const otherObjs = objs().filter(x => x.id !== o.id);
@@ -2333,21 +2829,6 @@ function renderInspector() {
         { name: 'Y', value: o.bindOffset?.[1] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0, 0]; o.bindOffset[1] = v; } },
         { name: 'Z', value: o.bindOffset?.[2] ?? 0, onInput: v => { o.bindOffset = o.bindOffset || [0, 0, 0]; o.bindOffset[2] = v; } }
       ]));
-      const copyBindBtn = el('button', 'mini', '⧉ 复制并绑定到同一父级');
-      copyBindBtn.style.width = '100%';
-      copyBindBtn.addEventListener('click', () => {
-        const c = JSON.parse(JSON.stringify(o));
-        c.id = uid();
-        c.name = o.name + ' 副本';
-        c.bindParent = o.bindParent;
-        c.bindOffset = (o.bindOffset || [0, 0, 0]).slice();
-        c.bindOffset[0] += 1.2;
-        objs().push(c);
-        syncScene3d();
-        select(c.id);
-        toast('已复制并绑定到同一父级');
-      });
-      p.appendChild(copyBindBtn);
     }
 
     p.appendChild(groupTitle('物理 / 动画'));
@@ -2383,11 +2864,11 @@ function renderInspector() {
         d.innerHTML = `<span class="pi">P${i}</span>`;
         for (let k = 0; k < 3; k++) {
           const w = el('div', 'vec-item');
-          const s = el('span', null, 'XYZ'[k]);
+          w.appendChild(el('span', null, 'XYZ'[k]));
           const inp = document.createElement('input');
           inp.type = 'number'; inp.step = 0.2; inp.value = pt[k];
           inp.addEventListener('input', () => { pt[k] = parseFloat(inp.value) || 0; syncScene3d(); });
-          w.append(s, inp);
+          w.appendChild(inp);
           d.appendChild(w);
         }
         const del = el('button', 'danger tiny', '×');
@@ -2410,6 +2891,7 @@ function renderInspector() {
           scale: [1, 1, 1], color: '#ff9f43', fov: 50, visible: true,
           spin: 0, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.5,
           collide: false, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+          logic: [],
           path: { enabled: false, points: [], speed: 1, mode: 'loop' },
           sound: { enabled: false, type: 'beep', volume: 0.3 }
         };
@@ -2462,6 +2944,7 @@ function addObject(type) {
       color: '#' + Math.floor(Math.random() * 0x777777 + 0x555555).toString(16).padStart(6, '0'),
       visible: true, vx: 0, vy: 0, gravity: 0, bounce: 0.6,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0],
+      logic: [],
       sound: { enabled: false, type: 'hit', volume: 0.3 }
     };
     if (type === 'circle') { o.w = 70; o.h = 70; o.color = '#ff6b6b'; }
@@ -2491,6 +2974,7 @@ function addObject(type) {
       color: '#' + Math.floor(Math.random() * 0x777777 + 0x555555).toString(16).padStart(6, '0'),
       visible: true, spin: 0, gravity: 0, vx: 0, vy: 0, vz: 0, bounce: 0.6,
       collide: true, isPlayer: false, bindParent: null, bindOffset: [0, 0, 0],
+      logic: [],
       path: { enabled: false, points: [], speed: 1, mode: 'loop' },
       sound: { enabled: false, type: 'hit', volume: 0.3 }
     };
@@ -2572,6 +3056,8 @@ function duplicateSelected() {
     c.pos[0] += 1.5; c.pos[2] += 1.5;
     if (c.path) c.path.points = c.path.points.map(p => [p[0] + 1.5, p[1], p[2] + 1.5]);
   }
+  // 清空运行状态
+  if (c.logic) for (const r of c.logic) { r._fired = false; r._timer = 0; }
   objs().push(c);
   if (state.mode === '3d') syncScene3d();
   select(c.id);
@@ -2580,11 +3066,13 @@ function duplicateSelected() {
 function saveSingleObject() {
   const o = getSelected();
   if (!o) return toast('请先选中一个对象');
+  const clean = JSON.parse(JSON.stringify(o));
+  if (clean.logic) for (const r of clean.logic) { delete r._fired; delete r._timer; }
   const data = {
     type: 'single-object',
-    version: 1,
+    version: 2,
     mode: state.mode,
-    object: JSON.parse(JSON.stringify(o))
+    object: clean
   };
   const safeName = (o.name || 'object').replace(/[\\/:*?"<>|]/g, '_');
   download(JSON.stringify(data, null, 2), safeName + '.obj.json', 'application/json');
@@ -2602,7 +3090,8 @@ function loadSingleObject(file) {
       else throw new Error('不是有效的对象文件');
       obj.id = uid();
       if (!obj.bindParent) obj.bindParent = null;
-      if (obj.sound === undefined) obj.sound = { enabled: false, type: 'hit', volume: 0.3 };
+      if (!obj.sound) obj.sound = { enabled: false, type: 'hit', volume: 0.3 };
+      if (!obj.logic) obj.logic = [];
       if (state.mode === '3d' && !obj.path) obj.path = { enabled: false, points: [], speed: 1, mode: 'loop' };
       if (obj.type === 'creature' && !obj.bones) obj.bones = defaultBones();
       objs().push(obj);
@@ -2655,7 +3144,7 @@ function updateStatus() {
   const o = getSelected();
   $('#stSel').innerHTML = o ? '选中：<b>' + esc(o.name) + '</b>' + (o.isPlayer ? ' 🎮' : '') : '未选中';
   if (state.playing) {
-    setHint('▶ 运行中 · 相机自动跟随玩家 · 点击「停止」还原场景');
+    setHint('▶ 运行中 · 拖动左下角轮盘移动玩家 · 点击「停止」还原');
   } else if (state.mode === '2d') {
     setHint(`缩放 ${(state.cam2d.zoom * 100).toFixed(0)}% · 滚轮缩放 · 空白拖拽平移 · Del 删除 · Ctrl+D 复制`);
   } else {
@@ -2667,11 +3156,19 @@ function updateStatus() {
    保存 / 读取
    ========================================================= */
 function sceneData() {
+  const clean = JSON.parse(JSON.stringify(state.scenes));
+  for (const k of ['2d', '3d']) {
+    for (const o of clean[k]) {
+      if (o.logic) for (const r of o.logic) { delete r._fired; delete r._timer; }
+      delete o._dead;
+      delete o._jumping;
+    }
+  }
   return {
-    version: 4,
+    version: 5,
     projectName: state.projectName,
     mode: state.mode,
-    scenes: state.scenes,
+    scenes: clean,
     nextId: _id
   };
 }
@@ -2700,6 +3197,9 @@ function loadJSON(text) {
         if (o.bindParent === undefined) o.bindParent = null;
         if (!o.bindOffset) o.bindOffset = k === '2d' ? [0, 0] : [0, 0, 0];
         if (!o.sound) o.sound = { enabled: false, type: 'hit', volume: 0.3 };
+        if (!o.logic) o.logic = [];
+        if (o.controllable === undefined && o.isPlayer) o.controllable = true;
+        if (o.moveSpeed === undefined && o.isPlayer) o.moveSpeed = k === '2d' ? 320 : 7;
         if (k === '3d' && !o.path) o.path = { enabled: false, points: [], speed: 1, mode: 'loop' };
         if (o.type === 'creature') {
           if (!o.bones) o.bones = defaultBones();
@@ -2746,6 +3246,12 @@ function buildGameRuntime() {
 
     let audioCtx = null, running = false, lastT = 0;
 
+    // 键盘状态
+    const keys = {};
+    addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+    addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+    // 音效
     const SFX = {
       jump: ['square',180,520,.14], hit: ['sawtooth',260,70,.16], coin: ['sine',880,1400,.22],
       laser: ['sawtooth',1400,220,.2], explosion: ['sawtooth',140,40,.5],
@@ -2768,6 +3274,42 @@ function buildGameRuntime() {
     const th = {};
     function sfxT(k, t, v) { const n = performance.now(); if (th[k] && n - th[k] < 90) return; th[k] = n; sfx(t, v); }
 
+    // 摇杆
+    const J = { active: false, pointerId: null, dx: 0, dy: 0, el: null, stick: null };
+    function setupJoy() {
+      const el = document.getElementById('joystick');
+      if (!el) return;
+      J.el = el;
+      J.stick = el.querySelector('.joy-stick');
+      function update(e) {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const mr = r.width / 2 - 10;
+        let dx = e.clientX - cx, dy = e.clientY - cy;
+        const len = Math.hypot(dx, dy);
+        if (len > mr) { dx = dx / len * mr; dy = dy / len * mr; }
+        J.dx = dx / mr; J.dy = dy / mr;
+        J.stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      }
+      el.addEventListener('pointerdown', e => {
+        e.preventDefault(); e.stopPropagation();
+        try { el.setPointerCapture(e.pointerId); } catch(_) {}
+        J.pointerId = e.pointerId; J.active = true; update(e);
+      });
+      el.addEventListener('pointermove', e => {
+        if (e.pointerId !== J.pointerId || !J.active) return;
+        e.preventDefault(); update(e);
+      });
+      const end = e => {
+        if (e.pointerId !== J.pointerId) return;
+        J.active = false; J.pointerId = null; J.dx = 0; J.dy = 0;
+        if (J.stick) J.stick.style.transform = 'translate(-50%, -50%)';
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    }
+
+    // 粒子
     const PL = [];
     function spawnP2(x, y, c) {
       const n = c.count || 18;
@@ -2817,13 +3359,100 @@ function buildGameRuntime() {
       }
     }
 
+    // 碰撞工具
+    function rOverlap(a, b) {
+      const ahw = Math.abs(a.w)/2, ahh = Math.abs(a.h)/2;
+      const bhw = Math.abs(b.w)/2, bhh = Math.abs(b.h)/2;
+      return Math.abs(b.x - a.x) < ahw + bhw && Math.abs(b.y - a.y) < ahh + bhh;
+    }
+    function bOverlap(a, b) {
+      const A = bbox(a), B = bbox(b);
+      return A.min[0] < B.max[0] && A.max[0] > B.min[0] &&
+             A.min[1] < B.max[1] && A.max[1] > B.min[1] &&
+             A.min[2] < B.max[2] && A.max[2] > B.min[2];
+    }
+    function bbox(o) {
+      const s = o.scale, p = o.pos;
+      return { min: [p[0]-s[0]/2,p[1]-s[1]/2,p[2]-s[2]/2], max: [p[0]+s[0]/2,p[1]+s[1]/2,p[2]+s[2]/2] };
+    }
+
+    // 交互逻辑
+    function execAction(owner, target, rule) {
+      const act = rule.action || 'sound';
+      const amt = rule.amount || 0;
+      switch (act) {
+        case 'destroy_self': destroy(owner); break;
+        case 'destroy_target': if (target) destroy(target); break;
+        case 'damage_self': damage(owner, amt || 5); break;
+        case 'damage_target': if (target) damage(target, amt || 5); break;
+        case 'heal_self': owner.hp = Math.min(owner.maxHp || 100, (owner.hp || 0) + (amt || 10)); break;
+        case 'heal_target': if (target) target.hp = Math.min(target.maxHp || 100, (target.hp || 0) + (amt || 10)); break;
+        case 'push_target':
+          if (target) {
+            if (MODE === '2d') {
+              const dx = target.x - owner.x, dy = target.y - owner.y;
+              const len = Math.hypot(dx, dy) || 1;
+              target.vx = (dx / len) * (amt || 300);
+              target.vy = (dy / len) * (amt || 300) - 120;
+            } else {
+              const dx = target.pos[0] - owner.pos[0], dz = target.pos[2] - owner.pos[2];
+              const len = Math.hypot(dx, dz) || 1;
+              target.vx = (dx / len) * (amt || 6);
+              target.vz = (dz / len) * (amt || 6);
+              target.vy = 3;
+            }
+          }
+          break;
+        case 'teleport_self':
+          if (target) {
+            if (MODE === '2d') { owner.x = target.x; owner.y = target.y - 60; }
+            else { owner.pos = [target.pos[0], target.pos[1] + 2, target.pos[2]]; }
+          }
+          break;
+        case 'particle':
+          if (MODE === '2d') spawnP2(owner.x, owner.y, { count: 15, color: owner.color, speed: 220, life: .7 });
+          else spawnP3(owner.pos, { count: 18, color: owner.color, speed: 3.5, life: .8 });
+          break;
+        case 'sound': default:
+          sfx(rule.sound || 'hit', .32);
+          break;
+      }
+    }
+    function checkLogic(dt) {
+      for (const o of OBJS) {
+        if (o._dead || o.visible === false) continue;
+        if (!o.logic || !o.logic.length) continue;
+        for (const rule of o.logic) {
+          if (rule.enabled === false) continue;
+          if (rule.once && rule._fired) continue;
+          let fired = false;
+          if (rule.trigger === 'collide') {
+            const target = rule.targetId ? OBJS.find(x => x.id === rule.targetId) : null;
+            const cands = target ? [target] : OBJS;
+            for (const t of cands) {
+              if (!t || t === o || t._dead || t.visible === false) continue;
+              const hit = MODE === '2d' ? rOverlap(o, t) : bOverlap(o, t);
+              if (hit) { execAction(o, t, rule); fired = true; break; }
+            }
+          } else if (rule.trigger === 'keypress') {
+            if (keys[(rule.key || 'e').toLowerCase()]) { execAction(o, null, rule); fired = true; }
+          } else if (rule.trigger === 'interval') {
+            rule._timer = (rule._timer || 0) + dt;
+            if (rule._timer >= (rule.interval || 1)) { rule._timer = 0; execAction(o, null, rule); fired = true; }
+          }
+          if (fired && rule.once) rule._fired = true;
+        }
+      }
+    }
+
+    // ================= 2D =================
     const c2d = document.getElementById('c2d');
     const ctx = c2d ? c2d.getContext('2d') : null;
     let CW = 0, CH = 0, DPR = 1;
     const cam = { x: 0, y: 0, zoom: 1 };
 
     function resize2d() {
-      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      DPR = Math.min(devicePixelRatio || 1, 2);
       CW = innerWidth; CH = innerHeight;
       c2d.width = CW * DPR; c2d.height = CH * DPR;
       c2d.style.width = CW + 'px'; c2d.style.height = CH + 'px';
@@ -2848,7 +3477,7 @@ function buildGameRuntime() {
         ctx.rotate((b.rz || 0) * Math.PI / 180);
         ctx.fillStyle = b.color || o.color;
         const w = b.sx || 20, h = b.sy || 20;
-        rrect(-w / 2, -h / 2, w, h, Math.min(w, h) * .22);
+        rrect(-w/2, -h/2, w, h, Math.min(w, h) * .22);
         ctx.fill();
         ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 1; ctx.stroke();
         for (let j = 0; j < bones.length; j++) if (bones[j].parent === i) draw(j);
@@ -2873,10 +3502,8 @@ function buildGameRuntime() {
         ctx.fillStyle = o.color || '#4a9eff';
         ctx.shadowColor = o.color || '#4a9eff';
         ctx.shadowBlur = o.isPlayer ? 22 : 8;
-        if (o.type === 'creature') {
-          ctx.shadowBlur = 14;
-          drawBones(o);
-        } else if (o.type === 'rect') { rrect(-o.w/2, -o.h/2, o.w, o.h, o.radius||0); ctx.fill(); }
+        if (o.type === 'creature') { ctx.shadowBlur = 14; drawBones(o); }
+        else if (o.type === 'rect') { rrect(-o.w/2, -o.h/2, o.w, o.h, o.radius||0); ctx.fill(); }
         else if (o.type === 'circle') { ctx.beginPath(); ctx.ellipse(0,0,Math.abs(o.w)/2,Math.abs(o.h)/2,0,0,Math.PI*2); ctx.fill(); }
         else if (o.type === 'triangle') { ctx.beginPath(); ctx.moveTo(0,-o.h/2); ctx.lineTo(o.w/2,o.h/2); ctx.lineTo(-o.w/2,o.h/2); ctx.closePath(); ctx.fill(); }
         else if (o.type === 'text') {
@@ -2889,11 +3516,11 @@ function buildGameRuntime() {
         if (o.type === 'creature') {
           const top = o.y - (o.h || 80) / 2 - 14;
           const w = 46, h = 5;
-          const r = Math.max(0, Math.min(1, (o.hp ?? 1) / (o.maxHp || 1)));
+          const rr = Math.max(0, Math.min(1, (o.hp ?? 1) / (o.maxHp || 1)));
           ctx.save();
           ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(o.x - w/2, top, w, h);
           ctx.fillStyle = o.faction === 'enemy' ? '#ff5b5b' : o.faction === 'friend' ? '#2ee6a8' : '#9aa7b8';
-          ctx.fillRect(o.x - w/2, top, w * r, h);
+          ctx.fillRect(o.x - w/2, top, w * rr, h);
           ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = .8;
           ctx.strokeRect(o.x - w/2, top, w, h);
           ctx.fillStyle = '#fff'; ctx.font = '700 9px sans-serif'; ctx.textAlign = 'center';
@@ -2915,6 +3542,20 @@ function buildGameRuntime() {
     }
     function step2d(dt) {
       const FLOOR = 240, WALL = 460, snd = [];
+      // 摇杆控制
+      for (const o of OBJS) {
+        if (o.isPlayer && o.controllable !== false && J.active) {
+          const spd = o.moveSpeed ?? 320;
+          if (Math.abs(J.dx) > .08) o.vx = J.dx * spd;
+          if (!o.gravity) o.vy = J.dy * spd;
+          else if (J.dy < -.55 && !o._jumping) {
+            o.vy = -(o.jumpPower ?? 560);
+            o._jumping = true;
+            if (o.sound && o.sound.enabled) sfx('jump', o.sound.volume);
+          }
+        }
+        if (o.isPlayer && (!J.active || J.dy > -.35)) o._jumping = false;
+      }
       for (const o of OBJS) {
         if (o.visible === false || o._dead || o.bindParent) continue;
         if (o.gravity) o.vy = (o.vy || 0) + o.gravity * dt;
@@ -2972,12 +3613,9 @@ function buildGameRuntime() {
       if (p) { const k = 1 - Math.exp(-5 * dt); cam.x += (p.x - cam.x) * k; cam.y += (p.y - cam.y) * k; }
     }
 
+    // ================= 3D =================
     let T3, renderer, scene, camera, meshes = new Map(), ptGeo, ptPts, MAXP = 2000;
 
-    function bbox(o) {
-      const s = o.scale, p = o.pos;
-      return { min: [p[0]-s[0]/2,p[1]-s[1]/2,p[2]-s[2]/2], max: [p[0]+s[0]/2,p[1]+s[1]/2,p[2]+s[2]/2] };
-    }
     function mat(c) { return new T3.MeshStandardMaterial({ color: new T3.Color(c), roughness: .45, metalness: .12 }); }
 
     function buildBones(o) {
@@ -3119,6 +3757,24 @@ function buildGameRuntime() {
     }
     function step3d(dt) {
       const snd = [];
+      // 摇杆控制 3D 玩家
+      if (J.active) {
+        const p = OBJS.find(o => o.isPlayer && o.controllable !== false && !o._dead);
+        if (p) {
+          const camDir = new T3.Vector3();
+          camera.getWorldDirection(camDir);
+          camDir.y = 0;
+          if (camDir.lengthSq() > .001) camDir.normalize();
+          const camRight = new T3.Vector3().crossVectors(camDir, new T3.Vector3(0, 1, 0)).normalize();
+          const mv = new T3.Vector3();
+          mv.addScaledVector(camDir, -J.dy);
+          mv.addScaledVector(camRight, J.dx);
+          if (mv.lengthSq() > .001) mv.normalize();
+          const spd = p.moveSpeed ?? 7;
+          p.pos[0] += mv.x * spd * dt;
+          p.pos[2] += mv.z * spd * dt;
+        }
+      }
       for (const o of OBJS) {
         if (o.visible === false || o._dead || o.bindParent) continue;
         if (o.path && o.path.enabled && o.path.points && o.path.points.length >= 2) {
@@ -3204,13 +3860,14 @@ function buildGameRuntime() {
       const dt = Math.min((t - lastT) / 1000, .05);
       lastT = t;
       updP(dt);
-      if (MODE === '2d') { step2d(dt); draw2d(); }
-      else { step3d(dt); updPts(); renderer.render(scene, camera); }
+      if (MODE === '2d') { step2d(dt); checkLogic(dt); draw2d(); }
+      else { step3d(dt); checkLogic(dt); updPts(); renderer.render(scene, camera); }
     }
 
     async function boot() {
       const startEl = document.getElementById('start');
       const startBtn = document.getElementById('startBtn');
+      setupJoy();
       if (MODE === '2d') {
         c2d.style.display = 'block';
         resize2d();
@@ -3229,6 +3886,9 @@ function buildGameRuntime() {
         for (const o of OBJS) if (o.sound && o.sound.enabled && o.sound.trigger === 'start') sfx(o.sound.type, o.sound.volume);
         startEl.classList.add('hide');
         setTimeout(() => { startEl.style.display = 'none'; }, 700);
+        // 显示摇杆（如果有可控制玩家）
+        const player = OBJS.find(o => o.isPlayer && o.controllable !== false && o.visible !== false);
+        if (J.el && player) J.el.style.display = 'block';
         running = true;
         lastT = performance.now();
         requestAnimationFrame(loop);
@@ -3246,7 +3906,7 @@ function buildGameRuntime() {
 function exportHTML() {
   const data = {
     mode: state.mode,
-    scenes: state.scenes,
+    scenes: sceneData().scenes,
     projectName: state.projectName
   };
   const json = JSON.stringify(data).replace(/</g, '\\u003c').replace(/-->/g, '--\\u003e');
@@ -3288,6 +3948,23 @@ function exportHTML() {
   @keyframes pop{0%{transform:scale(.3) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes up{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
   @keyframes breathe{0%,100%{box-shadow:0 10px 34px rgba(42,127,232,.45)}50%{box-shadow:0 10px 54px rgba(46,230,168,.75)}}
+  /* 移动轮盘 */
+  #joystick{position:fixed;left:26px;bottom:26px;width:130px;height:130px;
+    display:none;z-index:20;touch-action:none;user-select:none}
+  #joystick .joy-base{position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle,rgba(74,158,255,.10),rgba(20,30,50,.55));
+    border:2px solid rgba(74,158,255,.55);
+    box-shadow:0 6px 28px rgba(0,0,0,.55),inset 0 0 28px rgba(74,158,255,.14);
+    backdrop-filter:blur(6px)}
+  #joystick .joy-base::after{content:'';position:absolute;inset:18px;border-radius:50%;
+    border:1px dashed rgba(74,158,255,.22);pointer-events:none}
+  #joystick .joy-stick{position:absolute;left:50%;top:50%;width:56px;height:56px;border-radius:50%;
+    background:radial-gradient(circle at 32% 30%,#7cc0ff,#2a7fe8 60%,#1a4f9e);
+    transform:translate(-50%,-50%);
+    box-shadow:0 6px 18px rgba(42,127,232,.65),inset 0 2px 5px rgba(255,255,255,.35);
+    pointer-events:none;transition:transform .04s linear}
+  #joystick::before{content:'MOVE';position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+    font-size:9px;letter-spacing:2px;font-weight:800;color:rgba(74,158,255,.7);pointer-events:none}
 </style>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}<\/script>
 </head>
@@ -3300,6 +3977,11 @@ function exportHTML() {
 </div>
 <canvas id="c2d"></canvas>
 <div id="v3d"></div>
+<div id="joystick">
+  <div class="joy-base">
+    <div class="joy-stick"></div>
+  </div>
+</div>
 <script>window.__SCENE__ = ${json};<\/script>
 <script type="module">
 (${runtime})(window.__SCENE__);
@@ -3389,6 +4071,7 @@ ro.observe($('#viewport'));
 /* =========================================================
    启动
    ========================================================= */
+setupJoystick();
 seed();
 renderAddButtons();
 renderHierarchy();
